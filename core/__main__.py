@@ -14,6 +14,8 @@ import sys
 import jupyter_client
 from IPython.utils.capture import capture_output
 from prompt_toolkit import prompt
+from prompt_toolkit.history import FileHistory
+from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 TIMEOUT = 30
@@ -254,7 +256,9 @@ def main(args=None):
 
         try:
             while True:
-                stdin = prompt('λ ')
+                stdin = prompt('λ ',
+                               history=FileHistory('.inf-ipy-repl.history'),
+                               auto_suggest=AutoSuggestFromHistory())
                 status, stdout, stderr = execute(km, stdin)
                 if stdout.strip() :
                     print(stdout)
