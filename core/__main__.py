@@ -134,9 +134,10 @@ def execute(kernel, code):
     with capture_output() as io:
         reply = kernel.execute_interactive(code, timeout=TIMEOUT)
         stdout = io.stdout
+        stderr = io.stderr
         status = reply['content']['status']
 
-    return status, stdout
+    return status, stdout, stderr
 
 def main(args=None):
     """The main routine."""
@@ -200,7 +201,7 @@ def main(args=None):
             logging.error("he's dead, jim")
             sys.exit()
 
-        status, stdout = execute(km, "quit")
+        status, stdout, stderr = execute(km, "quit")
         assert status == 'ok'
         os.remove(args['file'])
 
@@ -254,9 +255,11 @@ def main(args=None):
         try:
             while True:
                 stdin = prompt('λ ')
-                status, stdout = execute(km, stdin)
+                status, stdout, stderr = execute(km, stdin)
                 if stdout.strip() :
                     print(stdout)
+                if stderr.strip() :
+                    print(stderr)
         except:
             pass
 
