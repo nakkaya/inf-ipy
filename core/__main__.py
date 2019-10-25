@@ -18,7 +18,6 @@ from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
-TIMEOUT = 30
 
 def ssh_read_config(args):
     ssh_config = paramiko.SSHConfig()
@@ -129,22 +128,6 @@ def kernel(f):
     km.start_channels()
     return km
 
-def execute(kernel, code):
-    stdout = ""
-    status = ""
-
-    with capture_output() as io:
-        reply = kernel.execute_interactive(code, timeout=TIMEOUT)
-        stdout = io.stdout
-        stderr = io.stderr
-        status = reply['content']['status']
-
-    return status, stdout, stderr
-
-def escape_ansi(line):
-    ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
-    return ansi_escape.sub('', line)
-
 def main(args=None):
     """The main routine."""
 
@@ -207,9 +190,7 @@ def main(args=None):
             logging.error("he's dead, jim")
             sys.exit()
 
-        status, stdout, stderr = execute(km, "quit")
-        assert status == 'ok'
-        os.remove(args['file'])
+        km.shutdown()
 
     if args['forward']:
 
@@ -263,11 +244,7 @@ def main(args=None):
                 stdin = prompt('λ ',
                                history=FileHistory('.inf-ipy-repl.history'),
                                auto_suggest=AutoSuggestFromHistory())
-                status, stdout, stderr = execute(km, stdin)
-                if stdout.strip() :
-                    print(escape_ansi(stdout))
-                if stderr.strip() :
-                    print(escape_ansi(stderr))
+                km.execute_interactive(stdin, timeout=10)
         except:
             pass
 
