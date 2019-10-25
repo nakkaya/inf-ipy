@@ -13,6 +13,7 @@ import os
 import sys
 import jupyter_client
 from IPython.utils.capture import capture_output
+from prompt_toolkit import prompt
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 TIMEOUT = 30
@@ -146,10 +147,10 @@ def main(args=None):
     parser.add_argument('--start', help='Start Remote Kernel', action='store_true')
     parser.add_argument('--stop', help='Stop Remote Kernel', action='store_true')
     parser.add_argument('--file', type=str, help='Connection File')
-    parser.add_argument('--eval', type=str, help='Evaluate Code')
     parser.add_argument('--kernel', type=str, help='Select Kernel')
     parser.add_argument('--existing', help='Fetch Connection File for Session', action='store_true')
     parser.add_argument('--forward', help='Forward Remote Kernel Ports', action='store_true')
+    parser.add_argument('--repl', help='REPL Loop', action='store_true')
 
     args = parser.parse_args()
     args = vars(args)
@@ -228,8 +229,7 @@ def main(args=None):
         input("Press Enter to continue...")
         tunnel.stop()
 
-    if args['eval']:
-
+    if args['repl']:
         if args['host'] is None:
             logging.error("--host is required for operation")
             sys.exit()
@@ -244,8 +244,10 @@ def main(args=None):
             logging.error("he's dead, jim")
             sys.exit()
 
-        status, stdout = execute(km, args['eval'])
-        print(stdout)
+        while True:
+            stdin = prompt('λ ')
+            status, stdout = execute(km, stdin)
+            print(stdout)
 
 if __name__ == "__main__":
     main()
