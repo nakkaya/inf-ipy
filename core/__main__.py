@@ -251,10 +251,14 @@ def main(args=None):
             logging.error("he's dead, jim")
             sys.exit()
 
-        while True:
-            stdin = prompt('λ ')
-            status, stdout = execute(km, stdin)
-            print(stdout)
+        try:
+            while True:
+                stdin = prompt('λ ')
+                status, stdout = execute(km, stdin)
+                if stdout.strip() :
+                    print(stdout)
+        except:
+            pass
 
 if __name__ == "__main__":
     main()

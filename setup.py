@@ -20,6 +20,7 @@ with open("readme.md", "r") as fh:
             'sshtunnel',
             'jupyter_client',
             'IPython',
+            'prompt_toolkit'
         ],
         
         classifiers=[
