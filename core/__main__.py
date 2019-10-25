@@ -17,15 +17,21 @@ from IPython.utils.capture import capture_output
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 TIMEOUT = 30
 
-def ssh_read_config(host, user):
+def ssh_read_config(args):
     ssh_config = paramiko.SSHConfig()
     user_config_file = os.path.expanduser("~/.ssh/config")
     if os.path.exists(user_config_file):
         with open(user_config_file) as f:
             ssh_config.parse(f)
 
-    cfg = {'hostname': host, 'username': user}
+    cfg = {'hostname': args['host']}
 
+    if args['user']:
+        cfg['username'] = args['user']
+    
+    if args['pass']:
+        cfg['password'] = args['pass']
+    
     user_config = ssh_config.lookup(cfg['hostname'])
     cfg["hostname"] = user_config["hostname"]
     if "user" in user_config :
@@ -35,11 +41,11 @@ def ssh_read_config(host, user):
     return cfg
 
 
-def ssh_connect(host, user):
+def ssh_connect(args):
     ssh = paramiko.SSHClient()
     ssh.load_system_host_keys()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    cfg = ssh_read_config(host, user)
+    cfg = ssh_read_config(args)
     logging.info("connecting " + str(cfg))
     ssh.connect(**cfg)
     return ssh, cfg
@@ -143,6 +149,7 @@ def main(args=None):
     parser = argparse.ArgumentParser(description='Remote IPython')
     parser.add_argument('--host', type=str, help='Remote Host')
     parser.add_argument('--user', type=str, help='Remote User')
+    parser.add_argument('--pass', type=str, help='Remote Password')
     parser.add_argument('--start', help='Start Remote Kernel', action='store_true')
     parser.add_argument('--stop', help='Stop Remote Kernel', action='store_true')
     parser.add_argument('--file', type=str, help='Connection File')
@@ -160,7 +167,7 @@ def main(args=None):
             logging.error("--host is required for operation")
             sys.exit()
 
-        ssh, cfg = ssh_connect(args['host'], args['user'])
+        ssh, cfg = ssh_connect(args)
         conn_file = start_kernel(ssh, args)
         fetch_conn_file(ssh, conn_file)
         local_conn_file(conn_file, cfg["hostname"])
@@ -176,7 +183,7 @@ def main(args=None):
             logging.error("--file is required for operation")
             sys.exit()
 
-        ssh, cfg = ssh_connect(args['host'], args['user'])
+        ssh, cfg = ssh_connect(args)
         fetch_conn_file(ssh, args['file'])
         local_conn_file(args['file'], cfg["hostname"])
         ssh.close()
@@ -213,7 +220,7 @@ def main(args=None):
             ports = list(map(lambda x: ("127.0.0.1", x[1]), ports))
             ports = ports
 
-        cfg = ssh_read_config(args['host'], args['user'])
+        cfg = ssh_read_config(args)
         logging.info("forwarding " + args['file'] + " on " + cfg["hostname"])
         tunnel = SSHTunnelForwarder(
             (args["host"]),
