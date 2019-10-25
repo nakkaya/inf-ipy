@@ -141,6 +141,10 @@ def execute(kernel, code):
 
     return status, stdout, stderr
 
+def escape_ansi(line):
+    ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
+    return ansi_escape.sub('', line)
+
 def main(args=None):
     """The main routine."""
 
@@ -261,9 +265,9 @@ def main(args=None):
                                auto_suggest=AutoSuggestFromHistory())
                 status, stdout, stderr = execute(km, stdin)
                 if stdout.strip() :
-                    print(stdout)
+                    print(escape_ansi(stdout))
                 if stderr.strip() :
-                    print(stderr)
+                    print(escape_ansi(stderr))
         except:
             pass
 
