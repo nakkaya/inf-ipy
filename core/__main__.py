@@ -245,6 +245,7 @@ def main(args=None):
                                history=FileHistory('.inf-ipy-repl.history'),
                                auto_suggest=AutoSuggestFromHistory())
                 km.execute_interactive(stdin, timeout=10)
+                print('')
         except:
             pass
 
