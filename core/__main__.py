@@ -178,7 +178,7 @@ def main(args=None):
         fetch_conn_file(ssh, args['file'])
         local_conn_file(args['file'], cfg["hostname"])
         ssh.close()
-    
+
     if args['stop']:
         if args['file'] is None:
             logging.error("--file is required for operation")
@@ -190,7 +190,10 @@ def main(args=None):
             logging.error("he's dead, jim")
             sys.exit()
 
-        km.shutdown()
+        try:
+            km.execute_interactive('quit()', timeout=3)
+        except:
+            logging.error("he's dead, jim")
 
     if args['forward']:
 
