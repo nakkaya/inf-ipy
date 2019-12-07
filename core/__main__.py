@@ -153,6 +153,10 @@ def main(args=None):
     args = vars(args)
     args.update(config_ini)
 
+    if len(sys.argv) < 2:
+        parser.print_usage()
+        sys.exit(1)
+    
     if args['start']:
         if args['host'] is None:
             logging.error("--host is required for operation")
