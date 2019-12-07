@@ -145,7 +145,7 @@ def main(args=None):
     parser.add_argument('--stop', help='Stop Remote Kernel', action='store_true')
     parser.add_argument('--file', type=str, help='Connection File')
     parser.add_argument('--kernel', type=str, help='Select Kernel')
-    parser.add_argument('--existing', help='Fetch Connection File for Session', action='store_true')
+    parser.add_argument('--attach', help='Fetch Connection File for Session', action='store_true')
     parser.add_argument('--forward', help='Forward Remote Kernel Ports', action='store_true')
     parser.add_argument('--repl', help='REPL Loop', action='store_true')
 
@@ -168,7 +168,7 @@ def main(args=None):
         local_conn_file(conn_file, cfg["hostname"])
         ssh.close()
 
-    if args['existing']:
+    if args['attach']:
 
         if args['host'] is None:
             logging.error("--host is required for operation")
