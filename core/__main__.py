@@ -249,7 +249,7 @@ def main(args=None):
         try:
             while True:
                 stdin = prompt('λ ',
-                               history=FileHistory('.inf-ipy-repl.history'),
+                               history=FileHistory('.inf-ipy-repl-history'),
                                auto_suggest=AutoSuggestFromHistory())
                 km.execute_interactive(stdin, timeout=10)
                 print('')

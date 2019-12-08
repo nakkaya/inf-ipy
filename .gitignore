@@ -1,3 +1,5 @@
 config.ini
-local-conn.json
+conn.json
 test.org
+.inf-ipy-repl.history
+.inf-ipy-repl-history
