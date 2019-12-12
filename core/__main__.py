@@ -204,7 +204,7 @@ def main(args=None):
     if args['stop']:
         req_arg(args, 'file')
         km = kernel(args['file'])
-        km.execute_interactive('quit()', timeout=timeout)
+        km.shutdown();
 
     if args['forward']:
         req_arg(args, 'host')
