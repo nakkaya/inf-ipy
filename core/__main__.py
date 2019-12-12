@@ -19,6 +19,7 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
+verbose = False
 timeout = 5
 
 def ssh_read_config(args):
@@ -74,6 +75,9 @@ def start_kernel(ssh, args):
     if args["kernel"] :
         cmd += ' --IPKernelApp.kernel_class="' + kernel + '"'
 
+    if verbose :
+        logging.info('exec ' + cmd)
+        
     stdin, stdout, stderr = ssh.exec_command (cmd)
     # consume a line from stdout otherwise
     # windows does not launch the ipykernel
@@ -87,6 +91,9 @@ def fetch_conn_file(ssh, conn_file):
     local_file = './' + conn_file
 
     sftp = ssh.open_sftp()
+
+    if verbose :
+        logging.info('rt_dir ' + rt_dir)
 
     logging.info("waiting kernel")
     while fexists(sftp, remote_file) is False:
@@ -144,6 +151,7 @@ def req_arg(args, arg):
 
 def main(args=None):
     """The main routine."""
+    global verbose
 
     config_ini = {}
     if os.path.exists("config.ini"):
@@ -162,6 +170,7 @@ def main(args=None):
     parser.add_argument('--attach', help='Fetch Connection File for Session', action='store_true')
     parser.add_argument('--forward', help='Forward Remote Kernel Ports', action='store_true')
     parser.add_argument('--repl', help='REPL Loop', action='store_true')
+    parser.add_argument('--verbose', help='Verbose Logging', action='store_true')
 
     args = parser.parse_args()
     args = vars(args)
@@ -170,7 +179,10 @@ def main(args=None):
     if len(sys.argv) < 2:
         parser.print_usage()
         sys.exit(1)
-    
+
+    if args['verbose']:
+        verbose = True
+
     if args['start']:
         req_arg(args, 'host')
 
