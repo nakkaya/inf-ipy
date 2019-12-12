@@ -19,6 +19,8 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
+timeout = 5
+
 def ssh_read_config(args):
     ssh_config = paramiko.SSHConfig()
     user_config_file = os.path.expanduser("~/.ssh/config")
@@ -126,6 +128,13 @@ def kernel(f):
     # load connection info and init communication
     km.load_connection_file()
     km.start_channels()
+    
+    try:
+        km.wait_for_ready(timeout=timeout)
+    except:
+        logging.error("he's dead, jim")
+        sys.exit(1)
+    
     return km
 
 def main(args=None):
@@ -189,15 +198,7 @@ def main(args=None):
             sys.exit()
 
         km = kernel(args['file'])
-
-        if km.is_alive() is False:
-            logging.error("he's dead, jim")
-            sys.exit()
-
-        try:
-            km.execute_interactive('quit()', timeout=3)
-        except:
-            logging.error("he's dead, jim")
+        km.execute_interactive('quit()', timeout=timeout)
 
     if args['forward']:
 
@@ -242,16 +243,12 @@ def main(args=None):
 
         km = kernel(args['file'])
 
-        if km.is_alive() is False:
-            logging.error("he's dead, jim")
-            sys.exit()
-
         try:
             while True:
                 stdin = prompt('λ ',
                                history=FileHistory('.inf-ipy-repl-history'),
                                auto_suggest=AutoSuggestFromHistory())
-                km.execute_interactive(stdin, timeout=10)
+                km.execute_interactive(stdin, timeout=timeout)
                 print('')
         except:
             pass
