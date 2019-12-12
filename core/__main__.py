@@ -137,6 +137,11 @@ def kernel(f):
     
     return km
 
+def req_arg(args, arg):
+    if args[arg] is None:
+        logging.error("--" + arg + " is required for operation")
+        sys.exit()
+
 def main(args=None):
     """The main routine."""
 
@@ -167,9 +172,7 @@ def main(args=None):
         sys.exit(1)
     
     if args['start']:
-        if args['host'] is None:
-            logging.error("--host is required for operation")
-            sys.exit()
+        req_arg(args, 'host')
 
         ssh, cfg = ssh_connect(args)
         conn_file = start_kernel(ssh, args)
@@ -178,14 +181,8 @@ def main(args=None):
         ssh.close()
 
     if args['attach']:
-
-        if args['host'] is None:
-            logging.error("--host is required for operation")
-            sys.exit()
-
-        if args['file'] is None:
-            logging.error("--file is required for operation")
-            sys.exit()
+        req_arg(args, 'host')
+        req_arg(args, 'file')
 
         ssh, cfg = ssh_connect(args)
         fetch_conn_file(ssh, args['file'])
@@ -193,22 +190,13 @@ def main(args=None):
         ssh.close()
 
     if args['stop']:
-        if args['file'] is None:
-            logging.error("--file is required for operation")
-            sys.exit()
-
+        req_arg(args, 'file')
         km = kernel(args['file'])
         km.execute_interactive('quit()', timeout=timeout)
 
     if args['forward']:
-
-        if args['host'] is None:
-            logging.error("--host is required for operation")
-            sys.exit()
-
-        if args['file'] is None:
-            logging.error("--file is required for operation")
-            sys.exit()
+        req_arg(args, 'host')
+        req_arg(args, 'file')
 
         ports = []
         with open(args['file'], "r+") as jsonFile:
@@ -233,13 +221,8 @@ def main(args=None):
         tunnel.stop()
 
     if args['repl']:
-        if args['host'] is None:
-            logging.error("--host is required for operation")
-            sys.exit()
-
-        if args['file'] is None:
-            logging.error("--file is required for operation")
-            sys.exit()
+        req_arg(args, 'host')
+        req_arg(args, 'file')
 
         km = kernel(args['file'])
 
