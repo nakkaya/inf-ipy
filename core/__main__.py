@@ -17,6 +17,10 @@ from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 
+import warnings
+
+warnings.filterwarnings(action='ignore',module='.*paramiko.*')
+
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 
 verbose = False
