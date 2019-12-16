@@ -81,11 +81,17 @@ def start_kernel(ssh, args):
 
     if verbose :
         logging.info('exec ' + cmd)
+    else:
+        logging.info('launching kernel')
         
     stdin, stdout, stderr = ssh.exec_command (cmd)
-    # consume a line from stdout otherwise
-    # windows does not launch the ipykernel
-    stdout.readline()
+
+    while stdout.channel.recv_ready() is False:
+        time.sleep(0.1)
+    
+    if stdout.channel.recv_stderr_ready() :
+        logging.error('can not launch kernel')
+        sys.exit(1)
 
     return conn_file
 
