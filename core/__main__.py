@@ -20,8 +20,10 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 import warnings
 
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
+logging.getLogger("paramiko").setLevel(logging.WARNING)
 
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
+logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"),
+                    format='%(levelname)s: %(message)s',)
 
 verbose = False
 timeout = 5
