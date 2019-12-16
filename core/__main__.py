@@ -16,6 +16,7 @@ from IPython.utils.capture import capture_output
 from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
+from queue import Empty
 
 import warnings
 
@@ -156,6 +157,28 @@ def kernel(f):
     
     return km
 
+def execute(kernel, code):
+     msg_id = kernel.execute(code)
+     output = {"msg_id": msg_id, "output": None, "image": None, "error": None}
+     while True:
+            try:
+                reply = kernel.get_iopub_msg(timeout=timeout)
+            except Empty:
+                continue
+
+            if "execution_state" in reply["content"]:
+                if reply["content"]["execution_state"] == "idle" and reply["parent_header"]["msg_id"] == msg_id:
+                    if reply["parent_header"]["msg_type"] == "execute_request":
+                        return output
+            elif reply["header"]["msg_type"] == "execute_result":
+                output["output"] = reply["content"]["data"].get("text/plain", "")
+            elif reply["header"]["msg_type"] == "display_data":
+                output["image"] = reply["content"]["data"].get("image/png", "")
+            elif reply["header"]["msg_type"] == "stream":
+                output["output"] = reply["content"].get("text", "")
+            elif reply["header"]["msg_type"] == "error":
+                output["error"] = "\n".join(reply["content"]["traceback"])
+
 def req_arg(args, arg):
     if args[arg] is None:
         logging.error("--" + arg + " is required for operation")
@@ -251,18 +274,20 @@ def main(args=None):
         km = kernel(args['file'])
 
         try:
-            if os.environ.get('INSIDE_EMACS') != None:
-                while True:
+            while True:
+                if os.environ.get('INSIDE_EMACS') != None:
                     stdin = input('> ')
-                    km.execute_interactive(stdin, timeout=timeout)
-                    print('')
-            else:
-                while True:
+                else:
                     stdin = prompt('λ ',
                                    history=FileHistory('.inf-ipy-repl-history'),
                                    auto_suggest=AutoSuggestFromHistory())
-                    km.execute_interactive(stdin, timeout=timeout)
-                    print('')
+                    
+                stdout = execute(km, stdin);
+
+                if stdout.get('output') != None:
+                    print(stdout.get('output'))
+                if stdout.get('error') != None:
+                    print(stdout.get('error'))
         except:
             pass
 
