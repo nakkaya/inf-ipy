@@ -10,3 +10,9 @@
     (unless buffer
       (apply 'make-comint "inf-ipy" "inf-ipy" nil '("--repl"))
       (inf-ipy-mode))))
+
+(defvar org-babel-default-header-args:inf-ipy
+  '((:results . "silent")))
+
+(defun org-babel-execute:inf-ipy (body params)
+  (comint-send-string "*inf-ipy*" (concat body "\n")))
