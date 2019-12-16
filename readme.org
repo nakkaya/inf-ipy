@@ -4,7 +4,7 @@ Remote Kernel Manager.
 
 *** Installation
 
-Clone this repository and execute =pip install .=
+Clone this repository and execute =pip install git+https://github.com/nakkaya/inf-ipy.git=
 
 Remote machines that will run the kernels only requires SSH and
 IPython to be present.
