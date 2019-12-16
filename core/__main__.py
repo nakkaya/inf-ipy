@@ -251,12 +251,18 @@ def main(args=None):
         km = kernel(args['file'])
 
         try:
-            while True:
-                stdin = prompt('λ ',
-                               history=FileHistory('.inf-ipy-repl-history'),
-                               auto_suggest=AutoSuggestFromHistory())
-                km.execute_interactive(stdin, timeout=timeout)
-                print('')
+            if os.environ.get('INSIDE_EMACS') != None:
+                while True:
+                    stdin = input('> ')
+                    km.execute_interactive(stdin, timeout=timeout)
+                    print('')
+            else:
+                while True:
+                    stdin = prompt('λ ',
+                                   history=FileHistory('.inf-ipy-repl-history'),
+                                   auto_suggest=AutoSuggestFromHistory())
+                    km.execute_interactive(stdin, timeout=timeout)
+                    print('')
         except:
             pass
 
