@@ -63,3 +63,5 @@ Server configuration can be kept in a config file called =config.ini=.
 
  - https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse
  - https://sehyoun.com/blog/20180904_using-matlab-with-jupyter-notebook.html
+ - https://python.hotexamples.com/examples/jupyter_client/BlockingKernelClient/get_shell_msg/python-blockingkernelclient-get_shell_msg-method-examples.html
+ - https://python.hotexamples.com/examples/jupyter_client/BlockingKernelClient/-/python-blockingkernelclient-class-examples.html
