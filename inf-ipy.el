@@ -2,7 +2,7 @@
   (setq-local comint-prompt-read-only t)
   (setq-local comint-prompt-regexp (rx bol ">" space)))
 
-(defun run-inf-ipy ()
+(defun inf-ipy ()
   (interactive)
   (let* ((buffer (comint-check-proc "*inf-ipy*")))
     (pop-to-buffer-same-window
