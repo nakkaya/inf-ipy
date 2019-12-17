@@ -19,6 +19,7 @@ from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from queue import Empty
 import base64
 import warnings
+import tempfile
 
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
 logging.getLogger("paramiko").setLevel(logging.WARNING)
@@ -182,9 +183,10 @@ def execute(kernel, code):
 def display(stdout):
     if stdout.get('image') != None:
         data = base64.b64decode(stdout['image'])
-        with open('stdout.png', 'wb') as f:
+        fd, path = tempfile.mkstemp(suffix='.png')
+        with os.fdopen(fd, 'wb') as f:
             f.write(data)
-        print("<image " + os.path.abspath('stdout.png') + ">")
+        print("<image " + path + ">")
 
     if stdout.get('output') != None:
         print(stdout['output'])
