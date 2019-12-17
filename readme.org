@@ -1,6 +1,4 @@
-* inf-ipy
-
-An REPL interface to communicate with Jupyter kernels in Emacs.
+A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
 
 * Table of Contents                                                     :TOC:
 
