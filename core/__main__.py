@@ -310,9 +310,10 @@ def main(args=None):
             while True:
                 buffer = []
                 line = input("> ")
+                if line == "inf-ipy-eoe":
+                    continue
                 buffer.append(line)
                 while True:
-                    print("  ", end="")
                     line = input()
                     if line == "inf-ipy-eoe":
                         break
@@ -320,8 +321,6 @@ def main(args=None):
                 stdin = "\n".join(buffer)
                 stdout = execute(km, stdin)
                 display(stdout)
-        #except Exception as ex:
-        #    print(ex)
         except:
             pass
 

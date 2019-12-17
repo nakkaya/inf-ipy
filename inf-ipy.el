@@ -5,8 +5,7 @@
         (insert-image (create-image (match-string 1 str)))
         (insert "\n")
         (comint-send-input nil
-                           t  ;; artificial
-                           )
+                           t)  ;; artificial
         "")
     str))
 
