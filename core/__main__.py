@@ -288,6 +288,7 @@ def main(args=None):
                     data = base64.b64decode(stdout['image'])
                     with open('stdout.png', 'wb') as f:
                         f.write(data)
+                    print("<image " + os.path.abspath('stdout.png') + ">")
 
                 if stdout.get('output') != None:
                     print(stdout['output'])
