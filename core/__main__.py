@@ -179,6 +179,19 @@ def execute(kernel, code):
             elif reply["header"]["msg_type"] == "error":
                 output["error"] = "\n".join(reply["content"]["traceback"])
 
+def display(stdout):
+    if stdout.get('image') != None:
+        data = base64.b64decode(stdout['image'])
+        with open('stdout.png', 'wb') as f:
+            f.write(data)
+        print("<image " + os.path.abspath('stdout.png') + ">")
+
+    if stdout.get('output') != None:
+        print(stdout['output'])
+
+    if stdout.get('error') != None:
+        print(stdout['error'])
+
 def req_arg(args, arg):
     if args[arg] is None:
         logging.error("--" + arg + " is required for operation")
@@ -205,6 +218,7 @@ def main(args=None):
     parser.add_argument('--attach', help='Fetch Connection File for Session', action='store_true')
     parser.add_argument('--forward', help='Forward Remote Kernel Ports', action='store_true')
     parser.add_argument('--repl', help='REPL Loop', action='store_true')
+    parser.add_argument('--comint', help='Emacs Interaction Loop', action='store_true')
     parser.add_argument('--verbose', help='Verbose Logging', action='store_true')
 
     args = parser.parse_args()
@@ -272,29 +286,31 @@ def main(args=None):
         req_arg(args, 'file')
 
         km = kernel(args['file'])
+        print("Press [Meta+Enter] or [Esc] followed by [Enter] to accept input.")
 
         try:
             while True:
-                if os.environ.get('INSIDE_EMACS') != None:
-                    stdin = input('> ')
-                else:
-                    stdin = prompt('λ ',
-                                   history=FileHistory('.inf-ipy-repl-history'),
-                                   auto_suggest=AutoSuggestFromHistory())
-                    
-                stdout = execute(km, stdin);
+                stdin = prompt('λ ',
+                               multiline=True,
+                               history=FileHistory('.inf-ipy-repl-history'),
+                               auto_suggest=AutoSuggestFromHistory())
+                stdout = execute(km, stdin)
+                display(stdout)
 
-                if stdout.get('image') != None:
-                    data = base64.b64decode(stdout['image'])
-                    with open('stdout.png', 'wb') as f:
-                        f.write(data)
-                    print("<image " + os.path.abspath('stdout.png') + ">")
+        except:
+            pass
 
-                if stdout.get('output') != None:
-                    print(stdout['output'])
+    if args['comint']:
+        req_arg(args, 'host')
+        req_arg(args, 'file')
 
-                if stdout.get('error') != None:
-                    print(stdout['error'])
+        km = kernel(args['file'])
+
+        try:
+            while True:
+                stdin = input('> ')
+                stdout = execute(km, stdin)
+                display(stdout)
 
         except:
             pass

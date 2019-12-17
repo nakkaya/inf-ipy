@@ -20,7 +20,7 @@
     (pop-to-buffer-same-window
      (get-buffer-create "*inf-ipy*"))
     (unless buffer
-      (apply 'make-comint "inf-ipy" "inf-ipy" nil '("--repl"))
+      (apply 'make-comint "inf-ipy" "inf-ipy" nil '("--comint"))
       (inf-ipy-mode)
       (add-hook 'comint-preoutput-filter-functions 'inf-ipy-comint-filter t t))))
 
