@@ -2,7 +2,7 @@
   (setq-local comint-prompt-read-only t)
   (setq-local comint-prompt-regexp (rx bol ">" space)))
 
-(defun inf-ipy-comint-filter (str)
+(defun inf-ipy-output-comint-filter (str)
   (if (string-match "^<image \\(.*\\)>" str)
       (progn
         (insert "\n")
@@ -22,7 +22,7 @@
     (unless buffer
       (apply 'make-comint "inf-ipy" "inf-ipy" nil '("--comint"))
       (inf-ipy-mode)
-      (add-hook 'comint-preoutput-filter-functions 'inf-ipy-comint-filter t t))))
+      (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t))))
 
 (defvar org-babel-default-header-args:inf-ipy
   '((:results . "silent")))
