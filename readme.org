@@ -69,10 +69,12 @@ Server configuration can be kept in a config file called =config.ini=.
   file = server.json
 #+END_SRC
 
+For a complete list of options use =inf-ipy --help=
+
 ** Emacs
 
 Once a kernel is started (using a configuration file) an Emacs REPL to
-that kernel can be created using =inf-ipy=. (Make sure =inf-ipy= is
+that kernel can be created using =M-x inf-ipy=. (Make sure =inf-ipy= is
 executed in the same folder where =config.ini= is.)
 
 Integration with =org-babel= can be enabled using,
