@@ -1,7 +1,3 @@
-(define-derived-mode inf-ipy-mode comint-mode "inf-ipy"
-  (setq-local comint-prompt-read-only t)
-  (setq-local comint-prompt-regexp (rx bol ">" space)))
-
 (defun inf-ipy-output-comint-filter (str)
   (if (string-match "^<image \\(.*\\)>" str)
       (progn
@@ -14,6 +10,9 @@
         "")
     str))
 
+(defun inf-ipy-send-string (proc string)
+  (comint-simple-send proc (concat string "\ninf-ipy-eoe\n")))
+
 (defun inf-ipy ()
   (interactive)
   (let* ((buffer (comint-check-proc "*inf-ipy*")))
@@ -23,6 +22,11 @@
       (apply 'make-comint "inf-ipy" "inf-ipy" nil '("--comint"))
       (inf-ipy-mode)
       (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t))))
+
+(define-derived-mode inf-ipy-mode comint-mode "inf-ipy"
+  (setq-local comint-prompt-read-only t)
+  (setq-local comint-prompt-regexp (rx bol ">" space))
+  (setq-local comint-input-sender 'inf-ipy-send-string))
 
 (defvar org-babel-default-header-args:inf-ipy
   '((:results . "silent")))

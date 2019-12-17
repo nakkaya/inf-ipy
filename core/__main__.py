@@ -308,10 +308,20 @@ def main(args=None):
 
         try:
             while True:
-                stdin = input('> ')
+                buffer = []
+                line = input("> ")
+                buffer.append(line)
+                while True:
+                    print("  ", end="")
+                    line = input()
+                    if line == "inf-ipy-eoe":
+                        break
+                    buffer.append(line)
+                stdin = "\n".join(buffer)
                 stdout = execute(km, stdin)
                 display(stdout)
-
+        #except Exception as ex:
+        #    print(ex)
         except:
             pass
 
