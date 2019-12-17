@@ -17,7 +17,7 @@ from prompt_toolkit import prompt
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from queue import Empty
-
+import base64
 import warnings
 
 warnings.filterwarnings(action='ignore',module='.*paramiko.*')
@@ -284,10 +284,17 @@ def main(args=None):
                     
                 stdout = execute(km, stdin);
 
+                if stdout.get('image') != None:
+                    data = base64.b64decode(stdout['image'])
+                    with open('stdout.png', 'wb') as f:
+                        f.write(data)
+
                 if stdout.get('output') != None:
-                    print(stdout.get('output'))
+                    print(stdout['output'])
+
                 if stdout.get('error') != None:
-                    print(stdout.get('error'))
+                    print(stdout['error'])
+
         except:
             pass
 
