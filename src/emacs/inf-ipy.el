@@ -48,8 +48,3 @@
 
      (add-to-list 'org-src-lang-modes
                   '(,(concat "inf-ipy-" (symbol-name kernel)) . ,kernel))))
-
-;; (macroexpand '(inf-ipy-configure-kernel python))
-;; (load-file "~/source/inf-ipy/inf-ipy.el")
-;; (inf-ipy-configure-kernel python)
-;; (inf-ipy-configure-kernel matlab)

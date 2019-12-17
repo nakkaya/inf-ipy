@@ -2,17 +2,36 @@ A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
 
 * Table of Contents                                                     :TOC:
 
-- [[#Installation][Installation]]
-- [[#Quickstart][Quickstart]]
+- [[Installation][Installation]]
+- [[Quickstart][Quickstart]]
+ - [[CLI][Command Line Interface]]
+ - [[Emacs][Emacs Interface]]
 
 * Installation
 
-Clone this repository and execute =pip install .=
+=inf-ipy= is made up of two parts. Python part that handles
+communication with Jupyter and provides two REPL interfaces one
+specialized for use in command line and one specialized for in Emacs.
+
+#+BEGIN_SRC bash
+  # For python
+  cd src/python
+  pip install .
+#+END_SRC
+
+Part two is an Emacs package that provides a REPL mode based on Comint
+mode.
+
+#+BEGIN_SRC emacs-lisp
+  ;; For Emacs
+  (load-file "src/emacs/inf-ipy.el")
+#+END_SRC
 
 Remote machines that will run the kernels only requires =SSH= and
 =Jupyter= to be present.
 
 * Quickstart
+** CLI
 
 To start a kernel on a remote machine.
 
@@ -29,13 +48,7 @@ To interact with the remote kernel on the local machine.
   inf-ipy --host remote_host --repl --file conn_file
 #+END_SRC
 
-or
-
-#+BEGIN_SRC bash
-  ipython qtconsole --existing conn_file
-#+END_SRC
-
-To stop a kernel on a remote machine.
+To stop the kernel.
 
 #+BEGIN_SRC bash
   inf-ipy --host remote_host --stop --file conn_file
@@ -55,3 +68,28 @@ Server configuration can be kept in a config file called =config.ini=.
   host = 10.9.0.150
   file = server.json
 #+END_SRC
+
+** Emacs
+
+Once a kernel is started (using a configuration file) an Emacs REPL to
+that kernel can be created using =inf-ipy=. (Make sure =inf-ipy= is
+executed in the same folder where =config.ini= is.)
+
+Integration with =org-babel= can be enabled using,
+
+#+BEGIN_SRC emacs-lisp
+  ;; Enable org-babel support for Python and Matlab
+  (inf-ipy-configure-kernel python)
+  (inf-ipy-configure-kernel matlab)
+#+END_SRC
+
+To interact with a python kernel you would create a new
+source block using,
+
+#+BEGIN_EXAMPLE
+  ,#+BEGIN_SRC inf-ipy-python
+  x = 'foo'
+  y = 'bar'
+  x + ' ' + y
+  ,#+END_SRC
+#+END_EXAMPLE
