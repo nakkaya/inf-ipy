@@ -203,12 +203,6 @@ def main(args=None):
     """The main routine."""
     global verbose
 
-    config_ini = {}
-    if os.path.exists("config.ini"):
-        config = configparser.ConfigParser()
-        config.read("config.ini")
-        config_ini = config._sections['SERVER']
-
     parser = argparse.ArgumentParser(description='Remote IPython')
     parser.add_argument('--host', type=str, help='Remote Host')
     parser.add_argument('--user', type=str, help='Remote User')
@@ -221,10 +215,23 @@ def main(args=None):
     parser.add_argument('--forward', help='Forward Remote Kernel Ports', action='store_true')
     parser.add_argument('--repl', help='REPL Loop', action='store_true')
     parser.add_argument('--comint', help='Emacs Interaction Loop', action='store_true')
+    parser.add_argument('--config', type=str, help='Config File')
     parser.add_argument('--verbose', help='Verbose Logging', action='store_true')
 
     args = parser.parse_args()
     args = vars(args)
+
+    if args['config']:
+        config_file = args['config']
+    else:
+        config_file = "config.ini"
+
+    config_ini = {}
+    if os.path.exists(config_file):
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        config_ini = config._sections['SERVER']
+
     args.update(config_ini)
 
     if len(sys.argv) < 2:

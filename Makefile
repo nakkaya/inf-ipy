@@ -4,4 +4,4 @@ pypi: clean
 	cd src/python/ && twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 
 clean:
-	rm -rf src/python/build/ src/python/dist/ src/python/inf_ipy.egg-info/
+	rm -rf src/python/build/ src/python/dist/ src/python/inf_ipy.egg-info/ src/python/.eggs/
