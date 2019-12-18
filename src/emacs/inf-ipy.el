@@ -1,3 +1,10 @@
+;;; inf-ipy.el --- A REPL interface to communicate with Jupyter kernels in Emacs
+
+;; Filename: inf-ipy.el
+;; Author: Nurullah Akkaya <nurullah at nakkaya dot com>
+;; Version: 0.1
+;; URL: https://github.com/nakkaya/inf-ipy/
+
 (defun inf-ipy-output-comint-filter (str)
   (if (string-match "^<image \\(.*\\)>" str)
       (progn
@@ -32,6 +39,8 @@
 
 (defun org-babel-execute:inf-ipy (body params)
   (comint-send-string "*inf-ipy*" (concat body "\n")))
+
+(add-to-list 'org-src-lang-modes '("inf-ipy" . python))
 
 (defmacro inf-ipy-configure-kernel (kernel)
   `(progn

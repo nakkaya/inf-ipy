@@ -13,17 +13,29 @@ A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
 communication with Jupyter and provides two REPL interfaces one
 specialized for use in command line and one specialized for in Emacs.
 
+** Using Package Managers
+
+Python
+
+#+BEGIN_SRC bash
+  pip install inf-ipy
+#+END_SRC
+
+Emacs from MELPA
+
+#+BEGIN_EXAMPLE
+  M-x package-install RET inf-ipy RET
+#+END_EXAMPLE
+
+** Manual
+
 #+BEGIN_SRC bash
   # For python
   cd src/python
   pip install .
 #+END_SRC
 
-Part two is an Emacs package that provides a REPL mode based on Comint
-mode.
-
 #+BEGIN_SRC emacs-lisp
-  ;; For Emacs
   (load-file "src/emacs/inf-ipy.el")
 #+END_SRC
 
