@@ -223,7 +223,7 @@ def main(args=None):
 
     if args['config']:
         config_file = args['config']
-        abs_path = os.path.abspath(config_file)
+        abs_path = os.path.abspath(os.path.realpath(os.path.expanduser(config_file)))
         work_dir = os.path.dirname(abs_path)
         config_file = os.path.basename(abs_path)
         os.chdir(work_dir)
