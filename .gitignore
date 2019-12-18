@@ -3,3 +3,7 @@ conn.json
 test.org
 .inf-ipy-repl.history
 .inf-ipy-repl-history
+src/python/build/
+src/python/dist/
+src/python/inf_ipy.egg-info/
+src/python/.eggs/

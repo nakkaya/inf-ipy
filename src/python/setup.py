@@ -1,13 +1,17 @@
 import setuptools
+import subprocess
+
+version_minor = subprocess.run(['git', 'rev-list', 'HEAD', '--count'], stdout=subprocess.PIPE)
 
 setuptools.setup(
     name='inf_ipy',
-    version='0.1',
+    version='0.1.' + version_minor.stdout.decode('utf-8'),
     author="Nurullah Akkaya",
     author_email="nurullah@nakkaya.com",
-    description="Manage Remote IPython Sessions",
-
-        packages=['core'],
+    description="A REPL interface to communicate with Jupyter kernels in Emacs or CLI.",
+    url="https://github.com/nakkaya/inf-ipy/",
+    
+    packages=['core'],
     entry_points={
         'console_scripts': [
             'inf-ipy = core.__main__:main'
@@ -21,9 +25,9 @@ setuptools.setup(
         'prompt_toolkit'
     ],
     
-        classifiers=[
-            "Programming Language :: Python :: 3",
-            "License :: BSD 2-Clause",
-            "Operating System :: OS Independent",
-        ],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+    ],
 )
