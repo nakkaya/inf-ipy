@@ -19,13 +19,19 @@
 (defun inf-ipy-send-string (proc string)
   (comint-simple-send proc (concat string "\ninf-ipy-eoe\n")))
 
+(defun inf-ipy-opts ()
+    (if (not (file-exists-p "./config.ini"))
+              (let ((config (read-file-name "Kernel Config: ")))
+                        (list "--comint" "--config" config))
+          (list "--comint")))
+
 (defun inf-ipy ()
   (interactive)
   (let* ((buffer (comint-check-proc "*inf-ipy*")))
     (pop-to-buffer-same-window
      (get-buffer-create "*inf-ipy*"))
     (unless buffer
-      (apply 'make-comint "inf-ipy" "inf-ipy" nil '("--comint"))
+      (apply 'make-comint "inf-ipy" "inf-ipy" nil (inf-ipy-opts))
       (inf-ipy-mode)
       (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t))))
 

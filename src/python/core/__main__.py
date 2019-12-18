@@ -203,7 +203,7 @@ def main(args=None):
     """The main routine."""
     global verbose
 
-    parser = argparse.ArgumentParser(description='Remote IPython')
+    parser = argparse.ArgumentParser(description='inf-ipy')
     parser.add_argument('--host', type=str, help='Remote Host')
     parser.add_argument('--user', type=str, help='Remote User')
     parser.add_argument('--pass', type=str, help='Remote Password')
@@ -223,6 +223,10 @@ def main(args=None):
 
     if args['config']:
         config_file = args['config']
+        abs_path = os.path.abspath(config_file)
+        work_dir = os.path.dirname(abs_path)
+        config_file = os.path.basename(abs_path)
+        os.chdir(work_dir)
     else:
         config_file = "config.ini"
 
