@@ -1,13 +1,14 @@
 A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
 
-[[https://s3.amazonaws.com/dropbox.nakkaya.com/inf-ipy.png]]
-
 * Table of Contents                                                     :TOC:
 
 - [[Installation][Installation]]
 - [[Quickstart][Quickstart]]
  - [[CLI][Command Line Interface]]
  - [[Emacs][Emacs Interface]]
+
+
+[[https://s3.amazonaws.com/dropbox.nakkaya.com/inf-ipy.png]]
 
 * Installation
 
