@@ -194,6 +194,13 @@ def display(stdout):
     if stdout.get('error') != None:
         print(stdout['error'])
 
+def attach_repl(args):
+    if not os.path.isfile(args['file']):
+        ssh, cfg = ssh_connect(args)
+        fetch_conn_file(ssh, args['file'])
+        local_conn_file(args['file'], cfg["hostname"])
+        ssh.close()
+        
 def req_arg(args, arg):
     if args[arg] is None:
         logging.error("--" + arg + " is required for operation")
@@ -211,7 +218,6 @@ def main(args=None):
     parser.add_argument('--stop', help='Stop Remote Kernel', action='store_true')
     parser.add_argument('--file', type=str, help='Connection File')
     parser.add_argument('--kernel', type=str, help='Select Kernel')
-    parser.add_argument('--attach', help='Fetch Connection File for Session', action='store_true')
     parser.add_argument('--forward', help='Forward Remote Kernel Ports', action='store_true')
     parser.add_argument('--repl', help='REPL Loop', action='store_true')
     parser.add_argument('--comint', help='Emacs Interaction Loop', action='store_true')
@@ -254,15 +260,6 @@ def main(args=None):
         local_conn_file(conn_file, cfg["hostname"])
         ssh.close()
 
-    if args['attach']:
-        req_arg(args, 'host')
-        req_arg(args, 'file')
-
-        ssh, cfg = ssh_connect(args)
-        fetch_conn_file(ssh, args['file'])
-        local_conn_file(args['file'], cfg["hostname"])
-        ssh.close()
-
     if args['stop']:
         req_arg(args, 'file')
         km = kernel(args['file'])
@@ -298,6 +295,7 @@ def main(args=None):
         req_arg(args, 'host')
         req_arg(args, 'file')
 
+        attach_repl(args)
         km = kernel(args['file'])
         print("Press [Meta+Enter] or [Esc] followed by [Enter] to accept input.")
 
@@ -317,6 +315,7 @@ def main(args=None):
         req_arg(args, 'host')
         req_arg(args, 'file')
 
+        attach_repl(args)
         km = kernel(args['file'])
 
         try:
