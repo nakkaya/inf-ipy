@@ -13,8 +13,8 @@ A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
 communication with Jupyter and provides two REPL interfaces one
 specialized for use in command line and one specialized for in Emacs.
 
-Remote machines that will run the kernels only requires =SSH= and
-=Jupyter= to be present. Tested on Linux/Windows.
+Machines that will run the kernels or connect to them only requires
+=SSH= and =Jupyter= to be installed. Tested on =Linux= / =Windows=.
 
 ** Using Package Managers
 
