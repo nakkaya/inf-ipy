@@ -5,14 +5,17 @@
 ;; Version: 0.1
 ;; URL: https://github.com/nakkaya/inf-ipy/
 
+(require 'comint)
+(require 'org)
+(require 'ob)
+
 (defun inf-ipy-output-comint-filter (str)
   (if (string-match "^<image \\(.*\\)>" str)
       (progn
         (insert "\n")
         (insert-image (create-image (match-string 1 str)))
         (insert "\n")
-        (comint-send-input nil
-                           t)  ;; artificial
+        (comint-send-input nil t)  ;; artificial
         "")
     str))
 
@@ -63,3 +66,10 @@
 
      (add-to-list 'org-src-lang-modes
                   '(,(concat "inf-ipy-" (symbol-name kernel)) . ,kernel))))
+
+(defun inf-ipy-clear ()
+  (interactive)
+  (pop-to-buffer-same-window
+   (get-buffer-create "*inf-ipy*"))
+  (let ((comint-buffer-maximum-size 0))
+    (comint-truncate-buffer)))
