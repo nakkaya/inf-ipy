@@ -1,5 +1,9 @@
 A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
 
+#+BEGIN_EXPORT html
+<img src="https://s3.amazonaws.com/dropbox.nakkaya.com/inf-ipy.png">
+#+END_EXPORT
+
 * Table of Contents                                                     :TOC:
 
 - [[Installation][Installation]]
