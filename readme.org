@@ -45,11 +45,14 @@ Emacs from MELPA (Pending Approval)
 
 ** Manual
 
+For python,
+
 #+BEGIN_SRC bash
-  # For python
   cd src/python
   pip install .
 #+END_SRC
+
+For Emacs,
 
 #+BEGIN_SRC emacs-lisp
   (load-file "src/emacs/inf-ipy.el")
