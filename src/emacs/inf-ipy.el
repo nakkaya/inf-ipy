@@ -61,16 +61,31 @@
       (inf-ipy-mode)
       (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t))))
 
+(defun inf-ipy-clear ()
+  (interactive)
+  (pop-to-buffer-same-window
+   (get-buffer-create "*inf-ipy*"))
+  (let ((comint-buffer-maximum-size 0))
+    (comint-truncate-buffer)))
+
 (define-derived-mode inf-ipy-mode comint-mode "inf-ipy"
   (setq-local comint-prompt-read-only t)
   (setq-local comint-prompt-regexp (rx bol ">" space))
   (setq-local comint-input-sender 'inf-ipy-send-string))
 
+;;; org-babel additions
+
+(defun inf-ipy-ob-execute(code)
+  (with-current-buffer
+      (get-buffer-create "*inf-ipy*")
+    (comint-send-string "*inf-ipy*" (concat code "\n"))
+    (comint-send-input nil t)))
+
 (defvar org-babel-default-header-args:inf-ipy
   '((:results . "silent")))
 
 (defun org-babel-execute:inf-ipy (body params)
-  (comint-send-string "*inf-ipy*" (concat body "\n")))
+  (inf-ipy-ob-execute body))
 
 (add-to-list 'org-src-lang-modes '("inf-ipy" . python))
 
@@ -85,17 +100,10 @@
               (concat "org-babel-execute:inf-ipy-"
                       (symbol-name kernel)))
          (body params)
-       (comint-send-string "*inf-ipy*" (concat body "\n")))
+       (inf-ipy-ob-execute body))
 
      (add-to-list 'org-src-lang-modes
                   '(,(concat "inf-ipy-" (symbol-name kernel)) . ,kernel))))
-
-(defun inf-ipy-clear ()
-  (interactive)
-  (pop-to-buffer-same-window
-   (get-buffer-create "*inf-ipy*"))
-  (let ((comint-buffer-maximum-size 0))
-    (comint-truncate-buffer)))
 
 (provide 'inf-ipy)
 
