@@ -97,6 +97,6 @@
   (let ((comint-buffer-maximum-size 0))
     (comint-truncate-buffer)))
 
-(provide 'undo-fu)
+(provide 'inf-ipy)
 
 ;;; inf-ipy.el ends here
