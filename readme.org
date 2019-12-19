@@ -27,7 +27,7 @@ Python
   pip install inf-ipy
 #+END_SRC
 
-Emacs from MELPA
+Emacs from MELPA (Pending Approval)
 
 #+BEGIN_EXAMPLE
   M-x package-install RET inf-ipy RET
