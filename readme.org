@@ -27,6 +27,16 @@ Python
   pip install inf-ipy
 #+END_SRC
 
+Emacs Using [[https://github.com/quelpa/quelpa][quelpa]]
+
+#+BEGIN_SRC emacs-lisp
+  (quelpa
+   '(inf-ipy
+     :fetcher github
+     :repo "nakkaya/inf-ipy"
+     :files ("src/emacs/*.el")))
+#+END_SRC
+
 Emacs from MELPA (Pending Approval)
 
 #+BEGIN_EXAMPLE
