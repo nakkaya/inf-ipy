@@ -159,26 +159,27 @@ def kernel(f):
     return km
 
 def execute(kernel, code):
-     msg_id = kernel.execute(code)
-     output = {"msg_id": msg_id, "output": None, "image": None, "error": None}
-     while True:
-            try:
-                reply = kernel.get_iopub_msg(timeout=timeout)
-            except Empty:
-                continue
+    msg_id = kernel.execute(code)
+    output = {"msg_id": msg_id, "output": None, "image": None, "error": None}
+    while True:
+        try:
+            reply = kernel.get_iopub_msg(timeout=timeout)
+        except Empty:
+            continue
 
-            if "execution_state" in reply["content"]:
-                if reply["content"]["execution_state"] == "idle" and reply["parent_header"]["msg_id"] == msg_id:
-                    if reply["parent_header"]["msg_type"] == "execute_request":
-                        return output
-            elif reply["header"]["msg_type"] == "execute_result":
-                output["output"] = reply["content"]["data"].get("text/plain", "")
-            elif reply["header"]["msg_type"] == "display_data":
-                output["image"] = reply["content"]["data"].get("image/png", "")
-            elif reply["header"]["msg_type"] == "stream":
-                output["output"] = reply["content"].get("text", "")
-            elif reply["header"]["msg_type"] == "error":
-                output["error"] = "\n".join(reply["content"]["traceback"])
+        if "execution_state" in reply["content"]:
+            if (reply["content"]["execution_state"] == "idle" and
+                reply["parent_header"]["msg_id"] == msg_id):
+                if reply["parent_header"]["msg_type"] == "execute_request":
+                    return output
+        elif reply["header"]["msg_type"] == "execute_result":
+            output["output"] = reply["content"]["data"].get("text/plain", "")
+        elif reply["header"]["msg_type"] == "display_data":
+            output["image"] = reply["content"]["data"].get("image/png", "")
+        elif reply["header"]["msg_type"] == "stream":
+            output["output"] = reply["content"].get("text", "")
+        elif reply["header"]["msg_type"] == "error":
+            output["error"] = "\n".join(reply["content"]["traceback"])
 
 def display(stdout):
     if stdout.get('image') != None:
