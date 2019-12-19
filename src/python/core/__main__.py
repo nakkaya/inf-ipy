@@ -160,7 +160,6 @@ def kernel(f):
 
 def execute(kernel, code):
     msg_id = kernel.execute(code)
-    output = {"msg_id": msg_id, "output": None, "image": None, "error": None}
     while True:
         try:
             reply = kernel.get_iopub_msg(timeout=timeout)
@@ -171,29 +170,19 @@ def execute(kernel, code):
             if (reply["content"]["execution_state"] == "idle" and
                 reply["parent_header"]["msg_id"] == msg_id):
                 if reply["parent_header"]["msg_type"] == "execute_request":
-                    return output
+                    return
         elif reply["header"]["msg_type"] == "execute_result":
-            output["output"] = reply["content"]["data"].get("text/plain", "")
+            print(reply["content"]["data"].get("text/plain", ""), end='')
         elif reply["header"]["msg_type"] == "display_data":
-            output["image"] = reply["content"]["data"].get("image/png", "")
+            data = base64.b64decode(stdout['image'])
+            fd, path = tempfile.mkstemp(suffix='.png')
+            with os.fdopen(fd, 'wb') as f:
+                f.write(data)
+            print("<image " + path + ">")
         elif reply["header"]["msg_type"] == "stream":
-            output["output"] = reply["content"].get("text", "")
+            print(reply["content"].get("text", ""), end='')
         elif reply["header"]["msg_type"] == "error":
-            output["error"] = "\n".join(reply["content"]["traceback"])
-
-def display(stdout):
-    if stdout.get('image') != None:
-        data = base64.b64decode(stdout['image'])
-        fd, path = tempfile.mkstemp(suffix='.png')
-        with os.fdopen(fd, 'wb') as f:
-            f.write(data)
-        print("<image " + path + ">")
-
-    if stdout.get('output') != None:
-        print(stdout['output'])
-
-    if stdout.get('error') != None:
-        print(stdout['error'])
+            print("\n".join(reply["content"]["traceback"]), end='')
 
 def attach_repl(args):
     if not os.path.isfile(args['file']):
@@ -309,9 +298,7 @@ def main(args=None):
                                multiline=True,
                                history=FileHistory('.inf-ipy-repl-history'),
                                auto_suggest=AutoSuggestFromHistory())
-                stdout = execute(km, stdin)
-                display(stdout)
-
+                execute(km, stdin)
         except:
             pass
 
@@ -335,8 +322,7 @@ def main(args=None):
                         break
                     buffer.append(line)
                 stdin = "\n".join(buffer)
-                stdout = execute(km, stdin)
-                display(stdout)
+                execute(km, stdin)
         except:
             pass
 
