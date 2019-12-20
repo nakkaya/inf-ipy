@@ -62,8 +62,8 @@ For Emacs,
 
 * Quickstart
 
-Create a configuration file that describes how to login and launch a
-kernel on a machine.
+Create a configuration file =config.ini= that describes how to login
+and launch a kernel on a machine.
 
 #+BEGIN_SRC conf
   [SERVER]
