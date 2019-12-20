@@ -32,6 +32,21 @@
 (require 'org)
 (require 'ob)
 
+(defcustom inf-ipy-program "inf-ipy"
+  "Program name for invoking inf-ipy."
+  :type 'string
+  :group 'inf-ipy)
+
+(defcustom inf-ipy-prompt (rx bol ">" space)
+  "Regexp to recognize prompts in the inf-ipy mode."
+  :type 'regexp
+  :group 'inf-ipy)
+
+(defcustom inf-ipy-buffer "*inf-ipy*"
+  "inf-ipy process buffer name."
+  :type 'string
+  :group 'inf-ipy)
+
 (defun inf-ipy-output-comint-filter (str)
   (if (string-match "^<image \\(.*\\)>" str)
       (progn
@@ -53,32 +68,49 @@
 
 (defun inf-ipy ()
   (interactive)
-  (let* ((buffer (comint-check-proc "*inf-ipy*")))
+  (let* ((buffer (comint-check-proc inf-ipy-buffer)))
     (pop-to-buffer-same-window
-     (get-buffer-create "*inf-ipy*"))
+     (get-buffer-create inf-ipy-buffer))
     (unless buffer
-      (apply 'make-comint "inf-ipy" "inf-ipy" nil (inf-ipy-opts))
+      (apply 'make-comint inf-ipy-program inf-ipy-program nil (inf-ipy-opts))
       (inf-ipy-mode)
       (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t))))
 
 (defun inf-ipy-clear ()
   (interactive)
   (pop-to-buffer-same-window
-   (get-buffer-create "*inf-ipy*"))
+   (get-buffer-create inf-ipy-buffer))
   (let ((comint-buffer-maximum-size 0))
     (comint-truncate-buffer)))
 
+(defun inf-ipy-quit ()
+  (interactive)
+  (pop-to-buffer-same-window
+   (get-buffer-create inf-ipy-buffer))
+  (kill-process))
+
+(defvar inf-ipy-map nil "Keymap for `inf-ipy-mode'")
+
+(progn
+  (setq inf-ipy-map (make-sparse-keymap))
+  (define-key inf-ipy-map (kbd "C-c C-k") 'inf-ipy-clear)
+  (define-key inf-ipy-map [C-up] 	  'comint-previous-input)
+  (define-key inf-ipy-map [C-down] 	  'comint-next-input)
+  (define-key inf-ipy-map "\C-m" 	  'comint-send-input)
+  (define-key inf-ipy-map (kbd "C-c C-q") 'inf-ipy-quit))
+
 (define-derived-mode inf-ipy-mode comint-mode "inf-ipy"
   (setq-local comint-prompt-read-only t)
-  (setq-local comint-prompt-regexp (rx bol ">" space))
-  (setq-local comint-input-sender 'inf-ipy-send-string))
+  (setq-local comint-prompt-regexp inf-ipy-prompt)
+  (setq-local comint-input-sender 'inf-ipy-send-string)
+  (use-local-map inf-ipy-map))
 
 ;;; org-babel additions
 
 (defun inf-ipy-ob-execute(code)
   (with-current-buffer
-      (get-buffer-create "*inf-ipy*")
-    (comint-send-string "*inf-ipy*" (concat code "\n"))
+      (get-buffer-create inf-ipy-buffer)
+    (comint-send-string inf-ipy-buffer (concat code "\n"))
     (comint-send-input nil t)))
 
 (defvar org-babel-default-header-args:inf-ipy
