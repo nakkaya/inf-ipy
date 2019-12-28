@@ -174,7 +174,7 @@ def execute(kernel, code):
         elif reply["header"]["msg_type"] == "execute_result":
             print(reply["content"]["data"].get("text/plain", ""), end='')
         elif reply["header"]["msg_type"] == "display_data":
-            data = base64.b64decode(stdout['image'])
+            data = base64.b64decode(reply["content"]["data"].get("image/png", ""))
             fd, path = tempfile.mkstemp(suffix='.png')
             with os.fdopen(fd, 'wb') as f:
                 f.write(data)
