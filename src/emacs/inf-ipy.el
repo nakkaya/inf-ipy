@@ -47,15 +47,27 @@
   :type 'string
   :group 'inf-ipy)
 
-(defun inf-ipy-output-comint-filter (str)
-  (if (string-match "^<image \\(.*\\)>" str)
-      (progn
-        (insert "\n")
-        (insert-image (create-image (match-string 1 str)))
-        (insert "\n")
-        (comint-send-input nil t)  ;; artificial
-        "")
-    str))
+
+(let ((output nil))
+  (defun inf-ipy-clear-last-output ()
+    (setq output nil))
+
+  (defun inf-ipy-output-comint-filter (str)
+    (if (string-match "^<image \\(.*\\)>" str)
+        (let ((file (match-string 1 str)))
+          (insert "\n")
+          (insert-image (create-image file))
+          (insert "\n")
+          (comint-send-input nil t)  ;; artificial
+          (setq output (concat (concat "[[" file) "]]  "))
+          "")
+      (setq output str)
+      str))
+
+  (defun inf-ipy-last-output ()
+    (when output
+      (let ((len (length output)))
+        (substring output 0 (- len 2))))))
 
 (defun inf-ipy-send-string (proc string)
   (comint-simple-send proc (concat string "\ninf-ipy-eoe")))
@@ -107,32 +119,34 @@
 
 ;;; org-babel additions
 
-(defun inf-ipy-ob-execute(code)
+(defun inf-ipy-ob-execute-send(body)
   (with-current-buffer
       (get-buffer-create inf-ipy-buffer)
-    (comint-send-string inf-ipy-buffer (concat code "\n"))
+    (comint-send-string inf-ipy-buffer (concat body "\n"))
     (comint-send-input nil t)))
 
-(defvar org-babel-default-header-args:inf-ipy
-  '((:results . "silent")))
+(defun inf-ipy-ob-execute(body params)
+  (if (eq (cdr (assq :result-type params)) 'output)
+      (progn
+        (inf-ipy-clear-last-output)
+        (inf-ipy-ob-execute-send body)
+        (while (not (inf-ipy-last-output))
+          (sleep-for 0.01))
+        (inf-ipy-last-output))
+    (inf-ipy-ob-execute-send body)))
 
 (defun org-babel-execute:inf-ipy (body params)
-  (inf-ipy-ob-execute body))
+  (inf-ipy-ob-execute body params))
 
 (add-to-list 'org-src-lang-modes '("inf-ipy" . python))
 
 (defmacro inf-ipy-configure-kernel (kernel)
   `(progn
-     (defvar ,(intern
-               (concat "org-babel-default-header-args:inf-ipy-"
-                       (symbol-name kernel)))
-       '((:results . "silent")))
-
      (defun ,(intern
               (concat "org-babel-execute:inf-ipy-"
                       (symbol-name kernel)))
          (body params)
-       (inf-ipy-ob-execute body))
+       (inf-ipy-ob-execute body params))
 
      (add-to-list 'org-src-lang-modes
                   '(,(concat "inf-ipy-" (symbol-name kernel)) . ,kernel))))
