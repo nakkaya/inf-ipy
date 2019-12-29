@@ -58,7 +58,7 @@
     str))
 
 (defun inf-ipy-send-string (proc string)
-  (comint-simple-send proc (concat string "\ninf-ipy-eoe\n")))
+  (comint-simple-send proc (concat string "\ninf-ipy-eoe")))
 
 (defun inf-ipy-opts ()
     (if (not (file-exists-p "./config.ini"))
