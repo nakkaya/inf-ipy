@@ -7,7 +7,7 @@ A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
  - [[#CLI][Command Line Interface]]
  - [[#Emacs][Emacs Interface]]
 
-
+#+attr_html: :max-width 75%
 [[https://s3.amazonaws.com/dropbox.nakkaya.com/inf-ipy.png]]
 
 * Installation
@@ -125,10 +125,29 @@ Integration with =org-babel= can be enabled using,
 To interact with a python kernel you would create a new
 source block using,
 
+Asynchronous execution,
+
 #+BEGIN_EXAMPLE
   ,#+BEGIN_SRC inf-ipy-python
   x = 'foo'
   y = 'bar'
   x + ' ' + y
+  ,#+END_SRC
+#+END_EXAMPLE
+
+Synchronous execution,
+
+#+BEGIN_EXAMPLE
+  ,#+BEGIN_SRC inf-ipy-python :results output
+  %matplotlib inline
+
+  import numpy as np
+  import matplotlib.pyplot as plt
+
+  fig = plt.figure()
+  ax = plt.axes()
+
+  x = np.linspace(0, 10, 1000)
+  ax.plot(x, np.sin(x));
   ,#+END_SRC
 #+END_EXAMPLE
