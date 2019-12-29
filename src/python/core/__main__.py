@@ -53,7 +53,6 @@ def ssh_read_config(args):
         cfg["sock"] = paramiko.ProxyCommand(user_config['proxycommand'])
     return cfg
 
-
 def ssh_connect(args):
     ssh = paramiko.SSHClient()
     ssh.load_system_host_keys()
@@ -138,9 +137,8 @@ def fexists(sftp, path):
     else:
         return True
 
-#
+
 # Local Kernel Interaction
-#
 
 def kernel(f):
     cf = jupyter_client.find_connection_file(f)
@@ -325,6 +323,7 @@ def main(args=None):
                 execute(km, stdin)
         except:
             pass
+
 
 if __name__ == "__main__":
     main()
