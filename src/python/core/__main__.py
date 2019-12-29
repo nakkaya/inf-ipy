@@ -30,6 +30,27 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"),
 verbose = False
 timeout = 5
 
+# Jupyter Commands
+
+def jupyter_runtime_cmd():
+    return 'jupyter --runtime-dir'
+
+def jupyter_kernel_cmd(args, conn_file):
+    cmd = 'ipython kernel --ip="*"' + ' --ConnectionFileMixin.connection_file="' + conn_file + '"'
+
+    kernel = "IPython.kernel.zmq.ipkernel.IPythonKernel"
+
+    if args["kernel"] :
+        kernel = args["kernel"]
+
+    if args["kernel"] :
+        cmd += ' --IPKernelApp.kernel_class="' + kernel + '"'
+
+    return cmd
+
+
+# SSH Interaction
+    
 def ssh_read_config(args):
     ssh_config = paramiko.SSHConfig()
     user_config_file = os.path.expanduser("~/.ssh/config")
@@ -63,7 +84,7 @@ def ssh_connect(args):
     return ssh, cfg
 
 def runtime_dir(ssh):
-    stdin, stdout, stderr = ssh.exec_command('jupyter --runtime-dir')
+    stdin, stdout, stderr = ssh.exec_command(jupyter_runtime_cmd())
     return stdout.read().decode('ascii').strip()
 
 def start_kernel(ssh, args):
@@ -72,15 +93,8 @@ def start_kernel(ssh, args):
     if args['file']:
         conn_file = args['file']
 
-    cmd = 'ipython kernel --ip="*"' + ' --ConnectionFileMixin.connection_file="' + conn_file + '"'
+    cmd = jupyter_kernel_cmd(args, conn_file)
 
-    kernel = "IPython.kernel.zmq.ipkernel.IPythonKernel"
-
-    if args["kernel"] :
-        kernel = args["kernel"]
-
-    if args["kernel"] :
-        cmd += ' --IPKernelApp.kernel_class="' + kernel + '"'
 
     if verbose :
         logging.info('exec ' + cmd)
