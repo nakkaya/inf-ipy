@@ -7,7 +7,7 @@ A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
  - [[#CLI][Command Line Interface]]
  - [[#Emacs][Emacs Interface]]
 
-#+attr_html: :max-width 75%
+#+attr_html: :width 640px
 [[https://s3.amazonaws.com/dropbox.nakkaya.com/inf-ipy.png]]
 
 * Installation
