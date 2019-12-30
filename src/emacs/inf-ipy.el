@@ -51,18 +51,16 @@
 
 (let ((comint-buffer "")
       (comint-output nil)
-      (uuid-que      '())
-      (buffer-que    '()))
+      (que           '()))
 
   (defun inf-ipy-output-comint-que (uuid buffer)
-    (setq uuid-que   (append uuid-que   (list uuid)))
-    (setq buffer-que (append buffer-que (list buffer))))
+    (setq que (append que (list (list uuid buffer)))))
 
   (defun inf-ipy-output-comint-deque ()
-    (let ((uuid   (car uuid-que))
-          (buffer (car buffer-que)))
-      (setq uuid-que   (cdr uuid-que))
-      (setq buffer-que (cdr buffer-que))
+    (let* ((next   (car que))
+           (uuid   (car next))
+           (buffer (car (cdr next))))
+      (setq que  (cdr que))
       (list uuid buffer)))
 
   (defun inf-ipy-output-comint-process ()
