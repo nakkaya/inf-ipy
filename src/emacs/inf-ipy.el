@@ -97,7 +97,9 @@
                              (format ": %s" x))
                            (butlast (split-string comint-output "\n"))
                            "\n")))))))))
-    str))
+    str)
+
+  (defun inf-ipy-comint-output () comint-output))
 
 (defun inf-ipy-send-string (proc string)
   (comint-simple-send proc (concat string "\ninf-ipy-eoe")))
@@ -116,7 +118,10 @@
         (apply 'make-comint inf-ipy-program inf-ipy-program nil (inf-ipy-opts))
         (inf-ipy-mode)
         (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t)
-        (accept-process-output (get-process inf-ipy-buffer) 10)))))
+        (while
+            (progn
+              (accept-process-output (get-process inf-ipy-buffer) 10)
+              (not (string-match inf-ipy-prompt (inf-ipy-comint-output)))))))))
 
 (defun inf-ipy ()
   (interactive)
