@@ -108,15 +108,21 @@
                         (list "--comint" "--config" config))
           (list "--comint")))
 
+(defun inf-ipy-start ()
+  (with-current-buffer (get-buffer-create inf-ipy-buffer)
+    (let* ((buffer (comint-check-proc inf-ipy-buffer)))
+      (unless buffer
+        (message "inf-ipy starting")
+        (apply 'make-comint inf-ipy-program inf-ipy-program nil (inf-ipy-opts))
+        (inf-ipy-mode)
+        (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t)
+        (accept-process-output (get-process inf-ipy-buffer) 10)))))
+
 (defun inf-ipy ()
   (interactive)
-  (let* ((buffer (comint-check-proc inf-ipy-buffer)))
-    (pop-to-buffer-same-window
-     (get-buffer-create inf-ipy-buffer))
-    (unless buffer
-      (apply 'make-comint inf-ipy-program inf-ipy-program nil (inf-ipy-opts))
-      (inf-ipy-mode)
-      (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t))))
+  (inf-ipy-start)
+  (pop-to-buffer-same-window
+   (get-buffer-create inf-ipy-buffer)))
 
 (defun inf-ipy-clear ()
   (interactive)
@@ -156,6 +162,7 @@
     (comint-send-input nil t)))
 
 (defun inf-ipy-ob-execute(body params)
+  (inf-ipy-start)
   (if (or (eq (cdr (assq :result-type params)) 'output)
           (eq (cdr (assq :result-type params)) 'value))
       (let ((current-file (buffer-file-name))
