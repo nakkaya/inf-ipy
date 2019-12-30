@@ -158,7 +158,8 @@
     (comint-send-input nil t)))
 
 (defun inf-ipy-ob-execute(body params)
-  (if (eq (cdr (assq :result-type params)) 'output)
+  (if (or (eq (cdr (assq :result-type params)) 'output)
+          (eq (cdr (assq :result-type params)) 'value))
       (let ((current-file (buffer-file-name))
             (uuid (org-id-uuid)))
         (org-babel-remove-result)
