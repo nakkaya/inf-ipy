@@ -173,6 +173,7 @@ def ssh_tunnel(args):
     while not tunnel.is_active:
         time.sleep(0.1)
 
+    logging.info("tunnel ready")
     local_conn_file(args['file'], "127.0.0.1")
 
 
@@ -321,8 +322,6 @@ def main(args=None):
     if args['comint']:
         req_arg(args, 'host')
         req_arg(args, 'file')
-
-        logging.getLogger().setLevel(logging.WARNING)
 
         attach_repl(args)
         km = kernel(args['file'])
