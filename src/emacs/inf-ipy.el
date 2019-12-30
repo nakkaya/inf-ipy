@@ -31,6 +31,7 @@
 (require 'comint)
 (require 'org)
 (require 'ob)
+(require 'org-id)
 
 (defcustom inf-ipy-program "inf-ipy"
   "Program name for invoking inf-ipy."
@@ -48,26 +49,55 @@
   :group 'inf-ipy)
 
 
-(let ((output nil))
-  (defun inf-ipy-clear-last-output ()
-    (setq output nil))
+(let ((comint-output nil)
+      (babel-output nil)
+      (uuid-que   '())
+      (buffer-que '()))
 
-  (defun inf-ipy-output-comint-filter (str)
+  (defun inf-ipy-output-comint-que (uuid buffer)
+    (setq uuid-que   (append uuid-que (list uuid)))
+    (setq buffer-que (append buffer-que (list buffer))))
+
+  (defun inf-ipy-output-comint-deque ()
+    (let ((uuid   (car uuid-que))
+          (buffer (car buffer-que)))
+      (setq uuid-que (cdr uuid-que))
+      (setq buffer-que (cdr buffer-que))
+      (list uuid buffer)))
+
+  (defun inf-ipy-output-comint-process (str)
     (if (string-match "^<image \\(.*\\)>" str)
         (let ((file (match-string 1 str)))
           (insert "\n")
           (insert-image (create-image file))
           (insert "\n")
           (comint-send-input nil t)  ;; artificial
-          (setq output (concat (concat "[[" file) "]]  "))
-          "")
-      (setq output str)
-      str))
-
-  (defun inf-ipy-last-output ()
-    (when output
-      (let ((len (length output)))
-        (substring output 0 (- len 2))))))
+          (setq babel-output  (concat (concat "[[" file) "]]  ")
+                comint-output ""))
+      (setq babel-output  (substring str 0 (- (length str) 2))
+            comint-output str)))
+  
+  (defun inf-ipy-output-comint-filter (str)
+    (inf-ipy-output-comint-process str)
+    (let* ((next   (inf-ipy-output-comint-deque))
+           (uuid   (car next))
+           (buffer (car (cdr next))))
+      (when uuid
+        (save-window-excursion
+          (save-excursion
+            (save-restriction
+              (with-current-buffer (find-file-noselect buffer)
+                (goto-char (point-min))
+                (re-search-forward uuid)
+                (beginning-of-line)
+                (kill-line)
+                (insert (mapconcat
+                         (lambda (x)
+                           (format ": %s" x))
+                         (split-string babel-output "\n")
+                         "\n"))))))))
+    comint-output
+    str))
 
 (defun inf-ipy-send-string (proc string)
   (comint-simple-send proc (concat string "\ninf-ipy-eoe")))
@@ -127,12 +157,19 @@
 
 (defun inf-ipy-ob-execute(body params)
   (if (eq (cdr (assq :result-type params)) 'output)
-      (progn
-        (inf-ipy-clear-last-output)
+      (let ((current-file (buffer-file-name))
+            (uuid (org-id-uuid)))
+        (org-babel-remove-result)
+        (save-excursion
+          (re-search-forward "#\\+END_SRC")
+          (insert (format
+                   "\n\n#+RESULTS: %s\n: %s"
+                   (or (org-element-property :name (org-element-context))
+                       "")
+                   uuid)))
+        (inf-ipy-output-comint-que uuid (buffer-file-name))
         (inf-ipy-ob-execute-send body)
-        (while (not (inf-ipy-last-output))
-          (sleep-for 0.01))
-        (inf-ipy-last-output))
+        uuid)
     (inf-ipy-ob-execute-send body)))
 
 (defun org-babel-execute:inf-ipy (body params)
