@@ -169,7 +169,7 @@
 (defun inf-ipy-ob-execute(body params)
   (inf-ipy-start)
   (if (or (eq (cdr (assq :result-type params)) 'output)
-          (eq (cdr (assq :result-type params)) 'value))
+          (string= (cdr (assq :results params)) "replace drawer"))
       (let ((current-file (buffer-file-name))
             (uuid (org-id-uuid)))
         (org-babel-remove-result)
