@@ -318,6 +318,8 @@ def main(args=None):
         req_arg(args, 'host')
         req_arg(args, 'file')
 
+        logging.getLogger().setLevel(logging.WARNING)
+
         attach_repl(args)
         km = kernel(args['file'])
 
