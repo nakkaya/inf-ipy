@@ -170,6 +170,9 @@ def ssh_tunnel(args):
     )
 
     tunnel.start()
+    while not tunnel.is_active:
+        time.sleep(0.1)
+
     local_conn_file(args['file'], "127.0.0.1")
 
 
