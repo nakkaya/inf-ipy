@@ -151,6 +151,27 @@ def fexists(sftp, path):
     else:
         return True
 
+def ssh_tunnel(args):
+    ports = []
+    with open(args['file'], "r+") as jsonFile:
+        data = json.load(jsonFile)
+        ports = [(key, value) for key, value in data.items() if key.endswith("_port")]
+        ports = list(map(lambda x: ("127.0.0.1", x[1]), ports))
+        ports = ports
+
+    cfg = ssh_read_config(args)
+    logging.info("forwarding " + args['file'] + " on " + cfg["hostname"])
+    tunnel = SSHTunnelForwarder(
+        (args["host"]),
+        ssh_username = cfg["username"],
+        ssh_pkey = "~/.ssh/id_rsa",
+        local_bind_addresses = ports,
+        remote_bind_addresses = ports
+    )
+
+    tunnel.start()
+    local_conn_file(args['file'], "127.0.0.1")
+
 
 # Local Kernel Interaction
 
@@ -197,11 +218,17 @@ def execute(kernel, code):
             print("\n".join(reply["content"]["traceback"]), end='')
 
 def attach_repl(args):
+    if args['forward'] and os.path.isfile(args['file']):
+        os.remove(args['file'])
+
     if not os.path.isfile(args['file']):
         ssh, cfg = ssh_connect(args)
         fetch_conn_file(ssh, args['file'])
         local_conn_file(args['file'], cfg["hostname"])
         ssh.close()
+
+    if args['forward']:
+        ssh_tunnel(args)
         
 def req_arg(args, arg):
     if args[arg] is None:
@@ -269,32 +296,6 @@ def main(args=None):
         req_arg(args, 'file')
         km = kernel(args['file'])
         km.shutdown();
-
-    if args['forward']:
-        req_arg(args, 'host')
-        req_arg(args, 'file')
-
-        ports = []
-        with open(args['file'], "r+") as jsonFile:
-            data = json.load(jsonFile)
-            ports = [(key, value) for key, value in data.items() if key.endswith("_port")]
-            ports = list(map(lambda x: ("127.0.0.1", x[1]), ports))
-            ports = ports
-
-        cfg = ssh_read_config(args)
-        logging.info("forwarding " + args['file'] + " on " + cfg["hostname"])
-        tunnel = SSHTunnelForwarder(
-            (args["host"]),
-            ssh_username = cfg["username"],
-            ssh_pkey = "~/.ssh/id_rsa",
-            local_bind_addresses = ports,
-            remote_bind_addresses = ports
-        )
-
-        tunnel.start()
-        local_conn_file(args['file'], "127.0.0.1")
-        input("Press Enter to continue...")
-        tunnel.stop()
 
     if args['repl']:
         req_arg(args, 'host')
