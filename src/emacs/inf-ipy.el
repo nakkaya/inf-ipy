@@ -49,54 +49,56 @@
   :group 'inf-ipy)
 
 
-(let ((comint-output nil)
-      (babel-output nil)
-      (uuid-que   '())
-      (buffer-que '()))
+(let ((comint-buffer "")
+      (comint-output nil)
+      (uuid-que      '())
+      (buffer-que    '()))
 
   (defun inf-ipy-output-comint-que (uuid buffer)
-    (setq uuid-que   (append uuid-que (list uuid)))
+    (setq uuid-que   (append uuid-que   (list uuid)))
     (setq buffer-que (append buffer-que (list buffer))))
 
   (defun inf-ipy-output-comint-deque ()
     (let ((uuid   (car uuid-que))
           (buffer (car buffer-que)))
-      (setq uuid-que (cdr uuid-que))
+      (setq uuid-que   (cdr uuid-que))
       (setq buffer-que (cdr buffer-que))
       (list uuid buffer)))
 
-  (defun inf-ipy-output-comint-process (str)
-    (if (string-match "^<image \\(.*\\)>" str)
-        (let ((file (match-string 1 str)))
+  (defun inf-ipy-output-comint-process ()
+    (if (string-match "^<image \\(.*\\)>" comint-buffer)
+        (let ((file (match-string 1 comint-buffer)))
           (insert "\n")
           (insert-image (create-image file))
           (insert "\n")
           (comint-send-input nil t)  ;; artificial
-          (setq babel-output  (concat (concat "[[" file) "]]  ")
-                comint-output ""))
-      (setq babel-output  (substring str 0 (- (length str) 2))
-            comint-output str)))
+          (setq comint-output (concat (concat "[[" file) "]]  ")
+                comint-buffer ""))
+      (setq comint-output comint-buffer
+            comint-buffer "")))
   
   (defun inf-ipy-output-comint-filter (str)
-    (inf-ipy-output-comint-process str)
-    (let* ((next   (inf-ipy-output-comint-deque))
-           (uuid   (car next))
-           (buffer (car (cdr next))))
-      (when uuid
-        (save-window-excursion
-          (save-excursion
-            (save-restriction
-              (with-current-buffer (find-file-noselect buffer)
-                (goto-char (point-min))
-                (re-search-forward uuid)
-                (beginning-of-line)
-                (kill-line)
-                (insert (mapconcat
-                         (lambda (x)
-                           (format ": %s" x))
-                         (split-string babel-output "\n")
-                         "\n"))))))))
-    comint-output
+    (setq comint-buffer (concat comint-buffer str))
+
+    (when (string-match inf-ipy-prompt str)
+      (inf-ipy-output-comint-process)
+      (let* ((next   (inf-ipy-output-comint-deque))
+             (uuid   (car next))
+             (buffer (car (cdr next))))
+        (when uuid
+          (save-window-excursion
+            (save-excursion
+              (save-restriction
+                (with-current-buffer (find-file-noselect buffer)
+                  (goto-char (point-min))
+                  (re-search-forward uuid)
+                  (beginning-of-line)
+                  (kill-line)
+                  (insert (mapconcat
+                           (lambda (x)
+                             (format ": %s" x))
+                           (butlast (split-string comint-output "\n"))
+                           "\n")))))))))
     str))
 
 (defun inf-ipy-send-string (proc string)
