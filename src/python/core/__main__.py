@@ -311,7 +311,7 @@ def main(args=None):
 
         try:
             while True:
-                stdin = prompt('λ ',
+                stdin = prompt('\nλ ',
                                multiline=True,
                                history=FileHistory('.inf-ipy-repl-history'),
                                auto_suggest=AutoSuggestFromHistory())
@@ -329,7 +329,7 @@ def main(args=None):
         try:
             while True:
                 buffer = []
-                line = input("> ")
+                line = input("\n> ")
                 if line == "inf-ipy-eoe":
                     continue
                 buffer.append(line)
