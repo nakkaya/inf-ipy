@@ -38,7 +38,7 @@
   :type 'string
   :group 'inf-ipy)
 
-(defcustom inf-ipy-prompt (rx bol ">" space)
+(defcustom inf-ipy-prompt (rx bol "inf-ipy>" space)
   "Regexp to recognize prompts in the inf-ipy mode."
   :type 'regexp
   :group 'inf-ipy)
@@ -78,7 +78,7 @@
   (defun inf-ipy-output-comint-filter (str)
     (setq comint-buffer (concat comint-buffer str))
 
-    (when (string-match inf-ipy-prompt str)
+    (when (string-match "inf-ipy>" str)
       (inf-ipy-output-comint-process)
       (let* ((next   (inf-ipy-output-comint-deque))
              (uuid   (car next))
