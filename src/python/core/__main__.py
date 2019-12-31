@@ -173,13 +173,16 @@ def ssh_tunnel(args):
     while not tunnel.is_active:
         time.sleep(0.1)
 
-    logging.info("tunnel ready")
+    if verbose :
+        logging.info("tunnel ready")
     local_conn_file(args['file'], "127.0.0.1")
 
 
 # Local Kernel Interaction
 
 def kernel(f):
+    if verbose :
+        logging.info("kernel connecting " + f)
     cf = jupyter_client.find_connection_file(f)
     km = jupyter_client.BlockingKernelClient(connection_file=cf)
 
