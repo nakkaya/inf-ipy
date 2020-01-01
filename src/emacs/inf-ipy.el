@@ -49,8 +49,7 @@
   :group 'inf-ipy)
 
 
-(let ((comint-buffer "")
-      (comint-output nil)
+(let ((comint-buffer nil)
       (que           '()))
 
   (defun inf-ipy-output-comint-que (uuid buffer)
@@ -63,23 +62,10 @@
       (setq que  (cdr que))
       (list uuid buffer)))
 
-  (defun inf-ipy-output-comint-process ()
-    (if (string-match "^<image \\(.*\\)>" comint-buffer)
-        (let ((file (match-string 1 comint-buffer)))
-          (insert "\n")
-          (insert-image (create-image file))
-          (insert "\n")
-          (comint-send-input nil t)  ;; artificial
-          (setq comint-output (concat (concat "[[" file) "]]  ")
-                comint-buffer ""))
-      (setq comint-output comint-buffer
-            comint-buffer "")))
-  
   (defun inf-ipy-output-comint-filter (str)
     (setq comint-buffer (concat comint-buffer str))
 
     (when (string-match "inf-ipy>" str)
-      (inf-ipy-output-comint-process)
       (let* ((next   (inf-ipy-output-comint-deque))
              (uuid   (car next))
              (buffer (car (cdr next))))
@@ -92,14 +78,12 @@
                   (re-search-forward uuid)
                   (beginning-of-line)
                   (kill-line)
-                  (insert (mapconcat
-                           (lambda (x)
-                             (format ": %s" x))
-                           (butlast (split-string comint-output "\n"))
-                           "\n")))))))))
+                  (insert
+                   (apply 'concat (butlast (split-string comint-buffer "\n"))))))))))
+      (setq comint-buffer ""))
     str)
 
-  (defun inf-ipy-comint-output () comint-output))
+  (defun inf-ipy-comint-buffer () comint-buffer))
 
 (defun inf-ipy-send-string (proc string)
   (comint-simple-send proc (concat string "\ninf-ipy-eoe")))
@@ -121,7 +105,7 @@
         (while
             (progn
               (accept-process-output (get-process inf-ipy-buffer) 10)
-              (not (string-match inf-ipy-prompt (inf-ipy-comint-output)))))))))
+              (not (inf-ipy-comint-buffer))))))))
 
 (defun inf-ipy ()
   (interactive)
