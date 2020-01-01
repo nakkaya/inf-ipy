@@ -48,9 +48,20 @@
   :type 'string
   :group 'inf-ipy)
 
+(defun inf-ipy-ob-insert-result (uuid buffer result)
+  (save-window-excursion
+    (save-excursion
+      (save-restriction
+        (with-current-buffer (find-file-noselect buffer)
+          (goto-char (point-min))
+          (when (re-search-forward uuid nil t)
+            (beginning-of-line)
+            (kill-line)
+            (insert
+             (apply 'concat (butlast (split-string result "\n"))))))))))
 
-(let ((comint-buffer nil)
-      (que           '()))
+(let ((output nil)
+      (que    '()))
 
   (defun inf-ipy-output-comint-que (uuid buffer)
     (setq que (append que (list (list uuid buffer)))))
@@ -63,27 +74,18 @@
       (list uuid buffer)))
 
   (defun inf-ipy-output-comint-filter (str)
-    (setq comint-buffer (concat comint-buffer str))
+    (setq output (concat output str))
 
-    (when (string-match "inf-ipy>" str)
+    (when (string-match inf-ipy-prompt str)
       (let* ((next   (inf-ipy-output-comint-deque))
              (uuid   (car next))
              (buffer (car (cdr next))))
         (when uuid
-          (save-window-excursion
-            (save-excursion
-              (save-restriction
-                (with-current-buffer (find-file-noselect buffer)
-                  (goto-char (point-min))
-                  (re-search-forward uuid)
-                  (beginning-of-line)
-                  (kill-line)
-                  (insert
-                   (apply 'concat (butlast (split-string comint-buffer "\n"))))))))))
-      (setq comint-buffer ""))
+          (inf-ipy-ob-insert-result uuid buffer output)))
+      (setq output ""))
     str)
 
-  (defun inf-ipy-comint-buffer () comint-buffer))
+  (defun inf-ipy-comint-output () output))
 
 (defun inf-ipy-send-string (proc string)
   (comint-simple-send proc (concat string "\ninf-ipy-eoe")))
@@ -105,7 +107,7 @@
         (while
             (progn
               (accept-process-output (get-process inf-ipy-buffer) 10)
-              (not (inf-ipy-comint-buffer))))))))
+              (not (inf-ipy-comint-output))))))))
 
 (defun inf-ipy ()
   (interactive)
