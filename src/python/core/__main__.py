@@ -192,7 +192,7 @@ def execute(kernel, code):
             fd, path = tempfile.mkstemp(suffix='.png')
             with os.fdopen(fd, 'wb') as f:
                 f.write(data)
-            print("<image " + path + ">")
+            print("[[" + path + "]]")
         elif reply["header"]["msg_type"] == "stream":
             print(reply["content"].get("text", ""), end='')
         elif reply["header"]["msg_type"] == "error":
