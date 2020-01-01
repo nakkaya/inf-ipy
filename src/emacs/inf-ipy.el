@@ -57,8 +57,11 @@
           (when (re-search-forward uuid nil t)
             (beginning-of-line)
             (kill-line)
-            (insert
-             (apply 'concat (butlast (split-string result "\n"))))))))))
+            (insert (mapconcat
+                     (lambda (x)
+                       (format "%s" x))
+                     (butlast (split-string result "\n"))
+                     "\n"))))))))
 
 (let ((output nil)
       (que    '()))
