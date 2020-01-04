@@ -4,13 +4,13 @@ import logging
 import argparse
 import configparser
 import paramiko
-from sshtunnel import SSHTunnelForwarder
 import re
 import json
 import uuid
 import time
 import os
 import sys
+import subprocess
 import jupyter_client
 from IPython.utils.capture import capture_output
 from prompt_toolkit import prompt
@@ -275,34 +275,34 @@ def main(args=None):
         req_arg(args, 'host')
         req_arg(args, 'file')
 
+        cfg = ssh_read_config(args)
         download_conn_file(args)
 
         ports = []
         with open(args['file'], "r+") as jsonFile:
             data = json.load(jsonFile)
             ports = [(key, value) for key, value in data.items() if key.endswith("_port")]
-            ports = list(map(lambda x: ("127.0.0.1", x[1]), ports))
+            ports = list(map(lambda x: str(x[1]) + ":" + cfg["hostname"] + ":" + str(x[1]) , ports))
             ports = ports
 
-        cfg = ssh_read_config(args)
-
-        logging.info("forwarding " + args['file'] + " on " + cfg["hostname"])
+        logging.info("forwarding " + args['file'] +
+                     " on " + cfg["hostname"] + " via " + args["host"])
         if verbose :
             logging.info(ports)
 
-        tunnel = SSHTunnelForwarder(
-            (args["host"]),
-            ssh_username = cfg["username"],
-            ssh_pkey = "~/.ssh/id_rsa",
-            ssh_config_file='~/.ssh/config',
-            local_bind_addresses = ports,
-            remote_bind_addresses = ports
-        )
+        command = ["ssh", "-T", "-N"]
+        for port in ports:
+            command.append("-L")
+            command.append(port)
+        command.append(args["host"])
 
-        tunnel.start()
+        p = subprocess.Popen(command,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+
         local_conn_file(args['file'], "127.0.0.1")
         input("Press Enter to continue...")
-        tunnel.stop()
+        p.kill()
 
     if args['repl']:
         req_arg(args, 'host')

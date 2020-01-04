@@ -19,7 +19,6 @@ setuptools.setup(
     },
     install_requires=[
         'paramiko',
-        'sshtunnel',
         'jupyter_client',
         'IPython',
         'prompt_toolkit'
