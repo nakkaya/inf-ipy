@@ -312,6 +312,10 @@ def main(args=None):
 
     if args['stop']:
         req_arg(args, 'file')
+
+        if not os.path.isfile(args['file']):
+            download_conn_file(args)
+
         km = kernel(args['file'])
         km.shutdown();
 
