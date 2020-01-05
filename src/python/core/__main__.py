@@ -11,6 +11,7 @@ import time
 import os
 import sys
 import subprocess
+import socket
 import jupyter_client
 from IPython.utils.capture import capture_output
 from prompt_toolkit import prompt
@@ -28,7 +29,7 @@ logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"),
                     format='%(levelname)s: %(message)s',)
 
 verbose = False
-timeout = 5
+network_timeout = 5
 
 # Jupyter Commands
 
@@ -165,7 +166,7 @@ def kernel(f):
     km.start_channels()
     
     try:
-        km.wait_for_ready(timeout=timeout)
+        km.wait_for_ready(timeout=network_timeout)
     except:
         logging.error("he's dead, jim")
         sys.exit(1)
@@ -176,7 +177,7 @@ def execute(kernel, code):
     msg_id = kernel.execute(code)
     while True:
         try:
-            reply = kernel.get_iopub_msg(timeout=timeout)
+            reply = kernel.get_iopub_msg(timeout=network_timeout)
         except Empty:
             continue
 
@@ -204,6 +205,15 @@ def download_conn_file(args):
     local_conn_file(args['file'], cfg["hostname"])
     ssh.close()
 
+def port_open(port):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(('127.0.0.1',port))
+    res = False
+    if result == 0:
+        res = True
+    sock.close()
+    return res
+
 def tunnel_up(args):
     cfg = ssh_read_config(args)
     download_conn_file(args)
@@ -230,6 +240,11 @@ def tunnel_up(args):
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
 
+    for port in ports:
+        while(not port_open(port)):
+            time.sleep(0.1)
+
+    logging.info("tunnel up")
     local_conn_file(args['file'], "127.0.0.1")
     return p
 
