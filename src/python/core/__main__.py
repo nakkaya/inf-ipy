@@ -204,6 +204,35 @@ def download_conn_file(args):
     local_conn_file(args['file'], cfg["hostname"])
     ssh.close()
 
+def tunnel_up(args):
+    cfg = ssh_read_config(args)
+    download_conn_file(args)
+
+    ports = []
+    with open(args['file'], "r+") as jsonFile:
+        data = json.load(jsonFile)
+        ports = [(key, value) for key, value in data.items() if key.endswith("_port")]
+        ports = list(map(lambda x: x[1] , ports))
+
+    logging.info("forwarding " + args['file'] +
+                 " on " + cfg["hostname"] + " via " + args["host"])
+
+    command = ["ssh", "-T", "-N"]
+    for port in ports:
+        command.append("-L")
+        command.append(str(port) + ":" + cfg["hostname"] + ":" + str(port))
+    command.append(cfg["username"] + "@" + args["host"])
+
+    if verbose :
+        logging.info(command)
+
+    p = subprocess.Popen(command,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE)
+
+    local_conn_file(args['file'], "127.0.0.1")
+    return p
+
 def req_arg(args, arg):
     if args[arg] is None:
         logging.error("--" + arg + " is required for operation")
@@ -274,36 +303,9 @@ def main(args=None):
     if args['forward']:
         req_arg(args, 'host')
         req_arg(args, 'file')
-
-        cfg = ssh_read_config(args)
-        download_conn_file(args)
-
-        ports = []
-        with open(args['file'], "r+") as jsonFile:
-            data = json.load(jsonFile)
-            ports = [(key, value) for key, value in data.items() if key.endswith("_port")]
-            ports = list(map(lambda x: str(x[1]) + ":" + cfg["hostname"] + ":" + str(x[1]) , ports))
-            ports = ports
-
-        logging.info("forwarding " + args['file'] +
-                     " on " + cfg["hostname"] + " via " + args["host"])
-
-        command = ["ssh", "-T", "-N"]
-        for port in ports:
-            command.append("-L")
-            command.append(port)
-        command.append(cfg["username"] + "@" + args["host"])
-
-        if verbose :
-            logging.info(command)
-
-        p = subprocess.Popen(command,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-
-        local_conn_file(args['file'], "127.0.0.1")
+        tunnel = tunnel_up(args)
         input("Press Enter to continue...")
-        p.kill()
+        tunnel.kill()
 
     if args['repl']:
         req_arg(args, 'host')
