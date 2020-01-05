@@ -287,14 +287,15 @@ def main(args=None):
 
         logging.info("forwarding " + args['file'] +
                      " on " + cfg["hostname"] + " via " + args["host"])
-        if verbose :
-            logging.info(ports)
 
         command = ["ssh", "-T", "-N"]
         for port in ports:
             command.append("-L")
             command.append(port)
-        command.append(args["host"])
+        command.append(cfg["username"] + "@" + args["host"])
+
+        if verbose :
+            logging.info(command)
 
         p = subprocess.Popen(command,
                              stdout=subprocess.PIPE,
