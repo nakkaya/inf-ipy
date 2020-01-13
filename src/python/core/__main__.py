@@ -39,13 +39,8 @@ def jupyter_runtime_cmd():
 def jupyter_kernel_cmd(args, conn_file):
     cmd = 'ipython kernel --ip="*"' + ' --ConnectionFileMixin.connection_file="' + conn_file + '"'
 
-    kernel = "IPython.kernel.zmq.ipkernel.IPythonKernel"
-
-    if args["kernel"] :
-        kernel = args["kernel"]
-
-    if args["kernel"] :
-        cmd += ' --IPKernelApp.kernel_class="' + kernel + '"'
+    if 'kernel' in args:
+        cmd += ' --IPKernelApp.kernel_class="' + args["kernel"] + '"'
 
     return cmd
 
@@ -55,24 +50,29 @@ def jupyter_kernel_cmd(args, conn_file):
 def ssh_read_config(args):
     ssh_config = paramiko.SSHConfig()
     user_config_file = os.path.expanduser("~/.ssh/config")
+
     if os.path.exists(user_config_file):
         with open(user_config_file) as f:
             ssh_config.parse(f)
 
     cfg = {'hostname': args['host']}
 
-    if args['user']:
+    if 'user' in args:
         cfg['username'] = args['user']
     
-    if args['pass']:
+    if 'pass' in args:
         cfg['password'] = args['pass']
     
     user_config = ssh_config.lookup(cfg['hostname'])
+
     cfg["hostname"] = user_config["hostname"]
+
     if "user" in user_config :
         cfg["username"] = user_config["user"]
+
     if 'proxycommand' in user_config:
         cfg["sock"] = paramiko.ProxyCommand(user_config['proxycommand'])
+
     return cfg
 
 def ssh_connect(args):
