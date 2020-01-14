@@ -7,6 +7,7 @@ python:
 cache: pip
 install:
   - pip install invoke
+  - pip install twine
 script:
   - cd src/python/
   - invoke testDocker
