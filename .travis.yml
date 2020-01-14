@@ -1,0 +1,8 @@
+language: python
+python:
+  - "3.6"
+cache: pip
+install:
+  - cd src/python/ && pip install .
+script:
+  - cd src/python/ && python tests.py
