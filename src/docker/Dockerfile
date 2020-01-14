@@ -11,6 +11,8 @@ RUN apt-get update && \
 
 RUN apt-get install python3 python3-pip git openssh-server openssh-client -y
 
+RUN pip3 install ipykernel
+
 RUN ssh-keygen -q -t rsa -N '' -f /root/.ssh/id_rsa
 RUN cp /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 RUN echo "Host *\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
