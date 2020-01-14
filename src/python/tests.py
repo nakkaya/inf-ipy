@@ -39,6 +39,16 @@ class test_inf_ipy(unittest.TestCase):
             execute(km, '2+2')
         self.assertTrue('4' in f.getvalue())
 
+        f = io.StringIO()
+        with redirect_stdout(f):
+            execute(km, 'some_var = 2+2\n42')
+        self.assertTrue('42' in f.getvalue())
+
+        f = io.StringIO()
+        with redirect_stdout(f):
+            execute(km, 'import time\ntime.sleep(' + str(network_timeout * 1.5) + ' )\n42')
+        self.assertTrue('42' in f.getvalue())
+
         km.shutdown();
         os.remove(args['file'])
 
