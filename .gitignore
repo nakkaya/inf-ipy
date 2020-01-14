@@ -7,3 +7,4 @@ src/python/build/
 src/python/dist/
 src/python/inf_ipy.egg-info/
 src/python/.eggs/
+src/python/core/__pycache__/
