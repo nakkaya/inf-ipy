@@ -4,7 +4,7 @@ import shutil
 
 @task
 def clean(c, docs=False, bytecode=False, extra=''):
-    fs = ['build/', 'dist/', 'inf_ipy.egg-info/', '.eggs/', 'core/__pycache__/']
+    fs = ['build/', 'dist/', 'inf_ipy.egg-info/', '.eggs/', 'core/__pycache__/', '__pycache__']
     for f in fs:
         if os.path.isdir(f):
             shutil.rmtree(f)

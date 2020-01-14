@@ -1,9 +1,12 @@
+sudo: required
+services:
+  - docker
 language: python
 python:
   - "3.6"
 cache: pip
 install:
-  - cd src/python/
-  - pip install .
+  - pip install invoke
 script:
-  - python tests.py
+  - cd src/python/
+  - invoke testDocker
