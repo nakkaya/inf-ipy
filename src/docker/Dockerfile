@@ -1,5 +1,5 @@
 # sudo docker build -t nakkaya/inf-ipy-build:latest .
-# sudo docker run -it -v `pwd`:/inf-ipy/ -w /inf-ipy/ nakkaya/inf-ipy-build:latest /bin/bash -c 'service ssh start && ls -alh'
+# sudo docker run -it -v `pwd`:/inf-ipy/ -w /inf-ipy/ nakkaya/inf-ipy-build:latest /bin/bash -c 'service ssh start && bash'
 
 FROM    ubuntu:18.04
 MAINTAINER Nurullah Akkaya <nurullah@nakkaya.com>
