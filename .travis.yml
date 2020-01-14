@@ -10,3 +10,7 @@ install:
 script:
   - cd src/python/
   - invoke testDocker
+deploy:
+  provider: pypi
+  username: PYPI_USERNAME
+  password: PYPI_PASSWORD
