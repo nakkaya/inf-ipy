@@ -14,5 +14,5 @@ script:
   - invoke build
 deploy:
   provider: pypi
-  username: PYPI_USERNAME
-  password: PYPI_PASSWORD
+  username: $PYPI_USERNAME
+  password: $PYPI_PASSWORD
