@@ -14,6 +14,15 @@ def test(c, docs=False):
     c.run("python tests.py")
 
 @task
+def testDocker(c, docs=False):
+    cmd = ("docker run -v " + os.getcwd() +
+           ":/inf-ipy/ -w /inf-ipy/ " +
+           "nakkaya/inf-ipy-build:latest " +
+           "/bin/bash -c " +
+           "'service ssh start && pip3 install . && python3 tests.py'")
+    c.run(cmd)
+
+@task
 def build(c, docs=False):
     c.run("python setup.py sdist bdist_wheel")
     c.run("twine check dist/*")
