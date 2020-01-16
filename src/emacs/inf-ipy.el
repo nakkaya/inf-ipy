@@ -28,10 +28,16 @@
 ;; OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ;; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+;;; Commentary:
+;; A REPL interface to communicate with Jupyter kernels in Emacs.
+
 (require 'comint)
 (require 'org)
 (require 'ob)
 (require 'org-id)
+
+;;; Code:
 
 (defcustom inf-ipy-program "inf-ipy"
   "Program name for invoking inf-ipy."
@@ -98,7 +104,7 @@
   (comint-simple-send proc (concat string "\ninf-ipy-eoe")))
 
 (defun inf-ipy-opts ()
-  "Default inf-ipy options. If working directory does not contain 
+  "Default inf-ipy options. If working directory does not contain
    a config.ini file prompt for one."
     (if (not (file-exists-p "./config.ini"))
               (let ((config (read-file-name "Kernel Config: ")))
@@ -107,7 +113,7 @@
 
 (defun inf-ipy-repl (&optional arg)
   "Run an inf-ipy process, input and output via buffer ‘*inf-ipy*’.
-   With argument, switches to ‘*inf-ipy*’. If there is a process 
+   With argument, switches to ‘*inf-ipy*’. If there is a process
    already running in ‘*inf-ipy*’, just switch to that buffer. "
   (interactive "p")
   (with-current-buffer (get-buffer-create inf-ipy-buffer)
@@ -166,13 +172,12 @@
     (comint-send-input nil t)))
 
 (defun inf-ipy-ob-execute (body params)
-  "Launch inf-ipy process if not running and execute 
+  "Launch inf-ipy process if not running and execute
    org-mode source block."
-  (inf-ipy-start)
+  (inf-ipy-repl)
   (if (or (eq (cdr (assq :result-type params)) 'output)
           (string= (cdr (assq :results params)) "replace drawer"))
-      (let ((current-file (buffer-file-name))
-            (uuid (org-id-uuid)))
+      (let ((uuid (org-id-uuid)))
         (org-babel-remove-result)
         (save-excursion
           (re-search-forward "#\\+END_SRC")
