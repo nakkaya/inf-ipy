@@ -12,7 +12,7 @@ A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
  - [[#CLI][Command Line Interface]]
  - [[#Emacs][Emacs Interface]]
 
-#+attr_html: :width 640px
+#+attr_html: :width 80%
 [[https://s3.amazonaws.com/dropbox.nakkaya.com/inf-ipy.png]]
 
 * Installation
@@ -117,7 +117,7 @@ To interact with the kernel via command line.
 #+END_SRC
 
 Once a kernel is started (using a configuration file) an Emacs REPL to
-that kernel can be created using =M-x inf-ipy=.
+that kernel can be created using =M-x inf-ipy-repl=.
 
 Integration with =org-babel= can be enabled using,
 
