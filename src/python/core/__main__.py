@@ -39,8 +39,8 @@ def jupyter_runtime_cmd():
 def jupyter_kernel_cmd(args, conn_file):
     cmd = 'ipython kernel --ip="*"' + ' --ConnectionFileMixin.connection_file="' + conn_file + '"'
 
-    if 'kernel' in args:
-        cmd += ' --IPKernelApp.kernel_class="' + args["kernel"] + '"'
+    if 'kernel' in args and args["kernel"] is not None:
+       cmd += ' --IPKernelApp.kernel_class="' + args["kernel"] + '"'
 
     return cmd
 
