@@ -2,7 +2,7 @@ A REPL interface to communicate with Jupyter kernels in Emacs or CLI.
 
 #+BEGIN_HTML
 <a href="https://travis-ci.org/nakkaya/inf-ipy/builds"><img src="https://api.travis-ci.org/nakkaya/inf-ipy.svg?branch=master"></a>
-<img src="https://img.shields.io/badge/License-BSD%202--Clause-orange.svg">
+<a href="https://opensource.org/licenses/BSD-2-Clause"><img src="https://img.shields.io/badge/License-BSD%202--Clause-orange.svg"></a>
 #+END_HTML
 
 * Table of Contents                                                     :TOC:
