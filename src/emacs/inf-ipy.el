@@ -48,7 +48,8 @@
   :type 'string
   :group 'inf-ipy)
 
-(defun inf-ipy-ob-insert-result (uuid buffer result)
+(defun inf-ipy-ob-insert-result (buffer uuid result)
+  "Replace result UUID with the result of the execution."
   (save-window-excursion
     (save-excursion
       (save-restriction
@@ -66,7 +67,7 @@
 (let ((output nil)
       (que    '()))
 
-  (defun inf-ipy-output-comint-que (uuid buffer)
+  (defun inf-ipy-output-comint-que (buffer uuid)
     (setq que (append que (list (list uuid buffer)))))
 
   (defun inf-ipy-output-comint-deque ()
@@ -84,22 +85,31 @@
              (uuid   (car next))
              (buffer (car (cdr next))))
         (when uuid
-          (inf-ipy-ob-insert-result uuid buffer output)))
+          (inf-ipy-ob-insert-result buffer uuid output)))
       (setq output ""))
     str)
 
-  (defun inf-ipy-comint-output () output))
+  (defun inf-ipy-comint-output ()
+    "Last output received from the process."
+    output))
 
 (defun inf-ipy-send-string (proc string)
+  "Multi line input sender for the process."
   (comint-simple-send proc (concat string "\ninf-ipy-eoe")))
 
 (defun inf-ipy-opts ()
+  "Default inf-ipy options. If working directory does not contain 
+   a config.ini file prompt for one."
     (if (not (file-exists-p "./config.ini"))
               (let ((config (read-file-name "Kernel Config: ")))
                         (list "--comint" "--config" config))
           (list "--comint")))
 
-(defun inf-ipy-start ()
+(defun inf-ipy-repl (&optional arg)
+  "Run an inf-ipy process, input and output via buffer ‘*inf-ipy*’.
+   With argument, switches to ‘*inf-ipy*’. If there is a process 
+   already running in ‘*inf-ipy*’, just switch to that buffer. "
+  (interactive "p")
   (with-current-buffer (get-buffer-create inf-ipy-buffer)
     (let* ((buffer (comint-check-proc inf-ipy-buffer)))
       (unless buffer
@@ -110,15 +120,13 @@
         (while
             (progn
               (accept-process-output (get-process inf-ipy-buffer) 10)
-              (not (inf-ipy-comint-output))))))))
-
-(defun inf-ipy ()
-  (interactive)
-  (inf-ipy-start)
-  (pop-to-buffer-same-window
-   (get-buffer-create inf-ipy-buffer)))
+              (not (inf-ipy-comint-output)))))))
+  (when (not (eq arg 1))
+    (pop-to-buffer-same-window
+     (get-buffer-create inf-ipy-buffer))))
 
 (defun inf-ipy-clear ()
+  "Clear ‘*inf-ipy*’ buffer."
   (interactive)
   (pop-to-buffer-same-window
    (get-buffer-create inf-ipy-buffer))
@@ -126,6 +134,7 @@
     (comint-truncate-buffer)))
 
 (defun inf-ipy-quit ()
+  "Quit ‘*inf-ipy*’ process."
   (interactive)
   (pop-to-buffer-same-window
    (get-buffer-create inf-ipy-buffer))
@@ -147,15 +156,18 @@
   (setq-local comint-input-sender 'inf-ipy-send-string)
   (use-local-map inf-ipy-map))
 
-;;; org-babel additions
+;;; org-babel support
 
-(defun inf-ipy-ob-execute-send(body)
+(defun inf-ipy-ob-execute-send (body)
+  "Send body to comint buffer for processing."
   (with-current-buffer
       (get-buffer-create inf-ipy-buffer)
     (comint-send-string inf-ipy-buffer (concat body "\n"))
     (comint-send-input nil t)))
 
-(defun inf-ipy-ob-execute(body params)
+(defun inf-ipy-ob-execute (body params)
+  "Launch inf-ipy process if not running and execute 
+   org-mode source block."
   (inf-ipy-start)
   (if (or (eq (cdr (assq :result-type params)) 'output)
           (string= (cdr (assq :results params)) "replace drawer"))
@@ -169,16 +181,18 @@
                    (or (org-element-property :name (org-element-context))
                        "")
                    uuid)))
-        (inf-ipy-output-comint-que uuid (buffer-file-name))
+        (inf-ipy-output-comint-que (buffer-file-name) uuid)
         (inf-ipy-ob-execute-send body)
         uuid)
     (inf-ipy-ob-execute-send body)))
 
+;; register inf-ipy with org babel.
 (defun org-babel-execute:inf-ipy (body params)
   (inf-ipy-ob-execute body params))
 
 (add-to-list 'org-src-lang-modes '("inf-ipy" . python))
 
+;; register inf-ipy-* with org babel.
 (defmacro inf-ipy-configure-kernel (kernel)
   `(progn
      (defun ,(intern
