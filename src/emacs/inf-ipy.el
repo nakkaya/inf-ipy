@@ -67,7 +67,9 @@
             (insert (mapconcat
                      (lambda (x)
                        (format "%s" x))
-                     (butlast (split-string result "\n"))
+                     (butlast
+                      (split-string
+                       (ansi-color-filter-apply result) "\n"))
                      "\n"))))))))
 
 (let ((output nil)
