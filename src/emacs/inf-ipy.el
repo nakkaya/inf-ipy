@@ -129,7 +129,7 @@
             (progn
               (accept-process-output (get-process inf-ipy-buffer) 10)
               (not (inf-ipy-comint-output)))))))
-  (when (not (eq arg 1))
+  (when (and arg (not (eq arg 1)))
     (pop-to-buffer-same-window
      (get-buffer-create inf-ipy-buffer))))
 
