@@ -171,6 +171,7 @@
   "Send body to comint buffer for processing."
   (with-current-buffer
       (get-buffer-create inf-ipy-buffer)
+    (goto-char (point-max))
     (comint-send-string inf-ipy-buffer (concat body "\n"))
     (comint-send-input nil t)))
 
