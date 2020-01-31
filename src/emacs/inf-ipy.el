@@ -70,7 +70,8 @@
                      (butlast
                       (split-string
                        (ansi-color-filter-apply result) "\n"))
-                     "\n"))))))))
+                     "\n"))
+            (org-redisplay-inline-images)))))))
 
 (let ((output nil)
       (que    '()))
