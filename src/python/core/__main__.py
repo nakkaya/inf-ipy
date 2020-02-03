@@ -113,6 +113,12 @@ def start_kernel(ssh, args):
 
     return conn_file
 
+def signal_kernel(args, signal_no):
+    ssh, cfg = ssh_connect(args)
+    cmd = "kill -" + str(signal_no) + " $(ps aux | grep '" + args['file']  + "' | awk '{print $2}')"
+    logging.info("sig " + str(signal_no) + " " + args['file'])
+    stdin, stdout, stderr = ssh.exec_command(cmd)
+    ssh.close()
 def fetch_conn_file(ssh, conn_file):
     rt_dir = runtime_dir(ssh)
     remote_file = rt_dir + "/" + conn_file
@@ -267,6 +273,8 @@ def main(args=None):
     kernel_group.add_argument('--stop', help='Stop Kernel', action='store_true')
     kernel_group.add_argument('--file', type=str, help='Connection File')
     kernel_group.add_argument('--kernel', type=str, help='Select Kernel')
+    kernel_group.add_argument('--interrupt', help='Interrupt Kernel', action='store_true')
+    kernel_group.add_argument('--kill', help='Kill Kernel', action='store_true')
     ssh_group.add_argument('--forward', help='Forward Kernel Ports', action='store_true')
     repl_group = parser.add_argument_group("REPL")
     repl_group.add_argument('--repl', help='CLI REPL', action='store_true')
@@ -309,6 +317,16 @@ def main(args=None):
         fetch_conn_file(ssh, conn_file)
         local_conn_file(conn_file, cfg["hostname"])
         ssh.close()
+
+    if args['kill']:
+        req_arg(args, 'host')
+        req_arg(args, 'file')
+        signal_kernel(args, 9)
+
+    if args['interrupt']:
+        req_arg(args, 'host')
+        req_arg(args, 'file')
+        signal_kernel(args, 2)
 
     if args['stop']:
         req_arg(args, 'file')
@@ -373,7 +391,6 @@ def main(args=None):
                 execute(km, stdin)
         except:
             pass
-
 
 if __name__ == "__main__":
     main()
