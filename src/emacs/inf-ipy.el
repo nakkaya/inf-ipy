@@ -149,6 +149,13 @@
    (get-buffer-create inf-ipy-buffer))
   (kill-process))
 
+(defun inf-ipy-interrupt ()
+  "Send ‘interrupt’ signal to ‘*inf-ipy*’ process."
+  (interactive)
+  (with-current-buffer (get-buffer-create inf-ipy-buffer)
+    (call-process-shell-command
+     (concat inf-ipy-program " --interrupt &") nil 0)))
+
 (defvar inf-ipy-map nil "Keymap for `inf-ipy-mode'")
 
 (progn
@@ -157,6 +164,7 @@
   (define-key inf-ipy-map [C-up] 	  'comint-previous-input)
   (define-key inf-ipy-map [C-down] 	  'comint-next-input)
   (define-key inf-ipy-map "\C-m" 	  'comint-send-input)
+  (define-key inf-ipy-map (kbd "C-c C-c") 'inf-ipy-interrupt)
   (define-key inf-ipy-map (kbd "C-c C-q") 'inf-ipy-quit))
 
 (define-derived-mode inf-ipy-mode comint-mode "inf-ipy"
