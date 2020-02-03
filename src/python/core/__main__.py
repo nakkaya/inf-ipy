@@ -81,7 +81,12 @@ def ssh_connect(args):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     cfg = ssh_read_config(args)
     logging.info("connecting " + str(cfg))
-    ssh.connect(**cfg)
+
+    try:
+        ssh.connect(**cfg)
+    except:
+        sys.exit(1)
+
     return ssh, cfg
 
 def runtime_dir(ssh):
