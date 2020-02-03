@@ -52,5 +52,21 @@ class test_inf_ipy(unittest.TestCase):
         km.shutdown();
         os.remove(args['file'])
 
+    def test030_kernel(self):
+        args = {'host': '127.0.0.1',
+                'file' : 'inf-ipy-unit-test-kernel'}
+        ssh, cfg = ssh_connect(args)
+        conn_file = start_kernel(ssh, args)
+        fetch_conn_file(ssh, conn_file)
+        local_conn_file(conn_file, cfg["hostname"])
+        ssh.close()
+
+        km = kernel(args['file'])
+        self.assertTrue(km.is_alive())
+        signal_kernel(args,9)
+        time.sleep(2)
+        self.assertFalse(km.is_alive())
+        os.remove(args['file'])
+
 if __name__ == '__main__':
     unittest.main()
