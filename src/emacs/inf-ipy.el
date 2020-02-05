@@ -106,6 +106,21 @@
   "Multi line input sender for the process."
   (comint-simple-send proc (concat string "\ninf-ipy-eoe")))
 
+(defun inf-ipy-org-props()
+  "Parse INF-IPY-* properties from the org file."
+  (interactive)
+  (let* ((props (org-element-map
+                    (org-element-parse-buffer) 'keyword
+                  (lambda (el)
+                    (when (string-match "INF-IPY-*" (org-element-property :key el)) el)))))
+    (mapcan  (lambda (prop)
+               (list
+                (downcase
+                 (s-replace
+                  "INF-IPY-" "--" (org-element-property :key prop)))
+                (org-element-property :value prop)))
+             props)))
+
 (defun inf-ipy-opts ()
   "Default inf-ipy options. If working directory does not contain
    a config.ini file prompt for one."
@@ -119,17 +134,21 @@
    With argument, switches to ‘*inf-ipy*’. If there is a process
    already running in ‘*inf-ipy*’, just switch to that buffer. "
   (interactive "p")
-  (with-current-buffer (get-buffer-create inf-ipy-buffer)
-    (let* ((buffer (comint-check-proc inf-ipy-buffer)))
-      (unless buffer
-        (message "inf-ipy starting")
-        (apply 'make-comint inf-ipy-program inf-ipy-program nil (inf-ipy-opts))
-        (inf-ipy-mode)
-        (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t)
-        (while
-            (progn
-              (accept-process-output (get-process inf-ipy-buffer) 10)
-              (not (inf-ipy-comint-output)))))))
+  (let ((opts (cons "--comint"
+                    (if (inf-ipy-org-props)
+                        (inf-ipy-org-props)
+                      (inf-ipy-opts)))))
+    (with-current-buffer (get-buffer-create inf-ipy-buffer)
+      (let* ((buffer (comint-check-proc inf-ipy-buffer)))
+        (unless buffer
+          (message "inf-ipy starting")
+          (apply 'make-comint inf-ipy-program inf-ipy-program nil opts)
+          (inf-ipy-mode)
+          (add-hook 'comint-preoutput-filter-functions 'inf-ipy-output-comint-filter t t)
+          (while
+              (progn
+                (accept-process-output (get-process inf-ipy-buffer) 10)
+                (not (inf-ipy-comint-output))))))))
   (when (and arg (not (eq arg 1)))
     (pop-to-buffer-same-window
      (get-buffer-create inf-ipy-buffer))))
