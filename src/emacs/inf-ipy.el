@@ -168,12 +168,21 @@
    (get-buffer-create inf-ipy-buffer))
   (kill-process))
 
+(defun inf-ipy-exec (cmd)
+  (interactive
+   (list
+    (completing-read "Command: " '("start" "stop" "kill" "interrupt"))))
+  (let ((opts (cons (concat "--" cmd)
+                    (if (inf-ipy-org-props)
+                        (inf-ipy-org-props)
+                      (inf-ipy-opts)))))
+    (async-shell-command
+     (mapconcat 'identity (cons inf-ipy-program opts) " ") "*inf-ipy-exec*")))
+
 (defun inf-ipy-interrupt ()
   "Send ‘interrupt’ signal to ‘*inf-ipy*’ process."
   (interactive)
-  (with-current-buffer (get-buffer-create inf-ipy-buffer)
-    (call-process-shell-command
-     (concat inf-ipy-program " --interrupt &") nil 0)))
+  (inf-ipy-exec "interrupt"))
 
 (defvar inf-ipy-map nil "Keymap for `inf-ipy-mode'")
 
