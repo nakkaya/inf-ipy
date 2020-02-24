@@ -168,16 +168,30 @@
    (get-buffer-create inf-ipy-buffer))
   (kill-process))
 
+(defun inf-ipy-exec-when-done (process signal)
+  (if (string= (string-trim signal) "finished")
+      (kill-buffer-and-window)))
+
 (defun inf-ipy-exec (cmd)
   (interactive
    (list
     (completing-read "Command: " '("start" "stop" "kill" "interrupt"))))
-  (let ((opts (cons (concat "--" cmd)
+  (let ((exec-buffer "*inf-ipy-exec*")
+        (opts (cons (concat "--" cmd)
                     (if (inf-ipy-org-props)
                         (inf-ipy-org-props)
                       (inf-ipy-opts)))))
-    (async-shell-command
-     (mapconcat 'identity (cons inf-ipy-program opts) " ") "*inf-ipy-exec*")))
+
+    (save-window-excursion
+      (async-shell-command
+       (mapconcat 'identity (cons inf-ipy-program opts) " ") exec-buffer))
+
+    (split-window-below 20)
+    (other-window 1)
+    (switch-to-buffer exec-buffer)
+    
+    (let ((process (get-buffer-process exec-buffer)))
+      (add-function :after (process-sentinel process) #'inf-ipy-exec-when-done))))
 
 (defun inf-ipy-interrupt ()
   "Send ‘interrupt’ signal to ‘*inf-ipy*’ process."
