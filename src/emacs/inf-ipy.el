@@ -126,8 +126,8 @@
    a config.ini file prompt for one."
     (if (not (file-exists-p "./config.ini"))
               (let ((config (read-file-name "Kernel Config: ")))
-                        (list "--comint" "--config" config))
-          (list "--comint")))
+                        (list "--config" config))
+          (list )))
 
 (defun inf-ipy-repl (&optional arg)
   "Run an inf-ipy process, input and output via buffer ‘*inf-ipy*’.
